@@ -5,6 +5,7 @@
             <h3>All Sub-Category</h3>
         </div>
         <div class="d-flex g-2 align-items-center">
+            
 
         </div>
     </div>
@@ -17,15 +18,20 @@
 
                         <!-- Category Name Input -->
                         <div class="mb-3">
-                            <label for="categoryName" class="form-label">Category Name</label>
+                            <label for="categoryName" class="form-label">Sub Category Name</label>
                             <input type="text" class="form-control" id="categoryName" placeholder="Enter Category Name">
                         </div>
 
                         <!-- Sub Category Name Input -->
                         <div class="mb-3">
-                            <label for="subCategoryName" class="form-label">Sub Category Name</label>
-                            <input type="text" class="form-control" id="subCategoryName"
-                                placeholder="Enter Sub Category Name">
+                            <label for="subCategoryName" class="form-label">Category Name</label>
+                            <select id="subCategoryName" class="form-control">
+                                <option>Select</option>
+                                <?php foreach ($data['categories'] as $categoy) {?>
+                                    <option value="<?= $categoy['CategoryID']?>"><?= $categoy['CategoryName']?></option>
+                               <?php }?>
+                            </select>
+                            
                         </div>
 
                         <!-- Display Type Input -->
@@ -81,29 +87,37 @@
                             <tr>
                                 <th>Sub Categorie</th>
                                 <th>Category</th>
-                                <th>Statistics</th>
-                                <th>Sub</th>
                                 <th>Created At</th>
-                                <th>Stock</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-
-                            <!-- <tr>
-                                    <td><img class="product-image" src="<?= base_url('assets/images/product-1.png') ?>" alt="User Image">Mens</td>
-                                    <td>Fashion</td>
-                                    <td>Best Seller</td>
-                                    <td>450</td>
-                                    <td>March 13,2024</td>
-                                    <td>Out Stock</td>
+                            <?php foreach ($data['subcategories'] as $subcategorie) {?>
+                               
+                            <tr>
+                                    <td><img class="product-image" style="width: 20px;" src="<?= base_url('uploads/').$subcategorie['categoryImage'] ?>" ><?= $subcategorie['CategoryName']?></td>
+                                    <td><?= $subcategorie['parentCategoryName']?></td>
+                                    <td>
+                                        <?php
+                                        $formattedDate = date("F d, Y", strtotime($subcategorie['CreatedDate']));
+                                        echo $formattedDate; 
+                                        ?>
+                                    </td>
+                                    <td>
+                                    <?php if ($subcategorie['IsActive']==1) {?>
+                                        <p style="color: green;">Active</p>
+                                    <?php }else if($subcategorie['IsActive']==2){?>
+                                        <p style="color: red;">Inactive</p>
+                                    <?php }?>
+                                </td>
                                     <td><div class="action-icons">
                                         <a href="#" class="icon View-icon" title="View"><img src="<?= base_url('assets/images/eye.png') ?>" alt="download" width="20px"></a>
                                         <a href="#" class="icon hand-icon" title="delete"><img src="<?= base_url('assets/images/Trash.png') ?>" alt="Handle" width="20px"></a>
                                         <a href="#" class="icon pen-icon" title="Edit"><img src="<?= base_url('assets/images/edit.png') ?>" alt="Edit" width="20px"></a>
                                     </div></td>
-                                  </tr> -->
-
+                                  </tr>
+                                  <?php }?>
                         </tbody>
                     </table>
                 </div>

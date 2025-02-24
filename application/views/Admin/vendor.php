@@ -108,21 +108,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- <tr>
+                            <?php foreach ($vendordata['vendors'] as $vendor) {?>
+                                
+                           
+                            <tr>
                                         <td>
-                                            <img class="user-image" src="<?= base_url('/assets/images/user-image.png') ?>" alt="User Image">Lorem Ipsum
+                                            <img class="user-image" src="<?= base_url('/uploads/vendorimages/').$vendor['vendor_image'] ?>" alt="User Image"><?= $vendor['vendor_name']?>
                                         </td>
-                                        <td>lorem@ipsum.com</td>
-                                        <td>+91 123 4567890</td>
-                                        <td>Lorem Ipsum</td>
-                                        <td>New Delhi</td>
-                                        <td>265 Orders</td>
-                                        <td>2024-12-25</td>
+                                        <td><?= $vendor['vendor_email'] ?></td>
+                                        <td><?= $vendor['vendor_phone'] ?></td>
+                                        <td><?= $vendor['state_name'] ?></td>
+                                        <td><?= $vendor['vendor_city'] ?></td>
+                                        <td>0 Orders</td>
                                         <td>
-                                            <select class="select-status" style="color: black;">
-                                               <option class="unactive" value="unactive">Un-Active</option>
-                                               <option class="active" value="active" selected>Active</option>
-                                               <option class="block" value="block" selected>Blocked</option>
+                                            <?php 
+                                            $date = new DateTime($vendor['application_date']);
+                                            $formattedDate = $date->format('d-m-Y H:i');
+                                            
+                                            echo $formattedDate;
+                                             
+                                             ?>
+                                            
+                                        </td>
+                                        <td>
+                                            <select class="select-status" onchange="vendorStatus(this.value,'<?= $vendor['id'] ?>')" style="color: black;">
+                                                
+                                                <option <?= ($vendor['is_verified']==1) ?'selected' : '' ?> class="active" value="1" >Active</option>
+                                                <option <?= ($vendor['is_verified']==2) ?'selected' : '' ?> class="block" value="2" >Blocked</option>
+                                                <?php if ($vendor['is_verified']==0) {?>
+                                                    <option <?= ($vendor['is_verified']==0) ?'selected' : '' ?> class="unactive" value="0">Un-Active</option>
+                                                <?php }?>
+                                                
+                                               
+                                               
                                             </select>
                                         </td>
                                         <td>
@@ -131,7 +149,8 @@
                                                 <a href="#" class="icon hand-icon" title="Delete"><img src="<?= base_url('/assets/images/Trash.png') ?>" alt="Handle" width="20px"></a>
                                             </div>
                                         </td>
-                                   </tr> -->
+                                   </tr>
+                                   <?php }?>
                         </tbody>
                     </table>
                 </div>

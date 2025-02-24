@@ -1,3 +1,30 @@
+
+function vendorStatus(status, id) {
+    if (!confirm("Are you sure you want to change the vendor status?")) {
+        return;
+    }
+
+    fetch('Web/Admin/Admin/updateVendor', {  // Using your controller URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_verified: status, id: id })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Vendor status updated successfully!");
+            location.reload(); // Reload to reflect changes
+        } else {
+            alert("Failed to update vendor status.");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+
 $(document).ready(function() {
     $('#sidebar').hover(
         function() {

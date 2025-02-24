@@ -705,16 +705,13 @@ private function createCustomPagination($currentPage, $totalPages, $baseUrl)
         }
     }
     
-    public function seller()
-    {
-        $data['category'] = $this->db->select('categories.*')->from('categories')->where(['is_deleted'=>1,'is_parent'=>1])->get()->result_array();
-        $data['countries'] = $this->db->select('countries.*')->from('countries')->where(['is_active'=>1])->get()->result_array();
-        $this->load->view('User/becomevendor',['data'=>$data]);
-    }
+
     public function getStates()
     {
+
         $json_data = file_get_contents('php://input');
         $data = json_decode($json_data, true);
+
         $states = $this->db->select('states.*')
             ->from('states')
             ->where(['is_active' => 1, 'country_id' => $data['id']])
@@ -728,83 +725,14 @@ private function createCustomPagination($currentPage, $totalPages, $baseUrl)
     }
     
 
-    public function save_vendor()
-    {
-        $data = $this->input->post();
-        $uploaded_file = null;
-        if (isset($_FILES['vendor_image']) && $_FILES['vendor_image']['error'] == 0) {
-            $config['upload_path']   = './uploads/vendorimages/'; // Define the upload directory
-            $config['allowed_types'] = 'jpg|jpeg|png|gif';         // Define allowed file types
-            $config['max_size']      = 2048;                      // Max size in KB (2 MB)
-            $config['file_name']     = time() . '_' . rand(100,999);
-            $this->load->library('upload');
-            $this->upload->initialize($config);
-            if ($this->upload->do_upload('vendor_image')) {
-                // On success, get file data
-                $uploaded_file = $this->upload->data();
-                $data['vendor_image'] = $uploaded_file['file_name']; // Save file name to data array
-            } else {
-                // On failure, capture the error message
-                $upload_error = $this->upload->display_errors();
-                echo "File upload failed: " . $upload_error;
-                exit; // Stop execution if file upload fails
-            }
-        }
-        $formatedData = [
-            'vendor_name'=>$data['vendor_name'],
-            'vendor_company'=>$data['vendor_company'],
-            'vendor_email'=>$data['vendor_email'],
-            'vendor_phone'=>$data['vendor_phone'],
-            'vendor_gst'=>$data['vendor_gst'],
-            'vendor_joining_date'=>$data['vendor_joining_date'],
-            'vendor_pan_card'=>$data['vendor_pan_card'],
-            'vendor_country'=>$data['vendor_country'],
-            'vendor_city'=>$data['vendor_city'],
-            'vendor_state'=>$data['vendor_state'],
-            'vendor_postcode'=>$data['vendor_postcode'],
-            'vendor_address'=>$data['vendor_address'],
-            'vendor_about'=>$data['vendor_about'],
-            
-        ];
-        if($data['vendor_image']){
-            $formatedData['vendor_image']= $data['vendor_image'];
-        }
-
-            $this->db->insert('vendors', $formatedData); 
-            $id = $this->db->insert_id();
-            if ($id) {
-                $categories = [];
-                foreach ($data['categories'] as $cat) {
-                    $categories['vendor_id'] = $id;
-                    $categories['category_id'] = $cat;
-                }
-                $this->db->insert('vendor_categories', $categories); 
-                $cid = $this->db->insert_id();
-                if ($cid) {
-                    echo json_encode(['status'=>'success','message'=>'details saved successfully','id'=>$cid]);
-                }else echo json_encode(['status'=>'failed','message'=>'something went wrong']);
-            }
 
 
-
-
+public function checkPhone()
+{ 
+    $data = json_decode(file_get_contents("php://input"), true);
+    print_r($data);
+    exit;
     
-    }
-
-    public function saveBank()
-    {
-        $data = $this->input->post();
-        if(isset($data['vendor_id'])&&!empty($data['vendor_id'])){
-            $this->load->model('AdminModel');
-        $res = $this->AdminModel->saveVendorAccount($data);
-        if($res){
-            echo json_encode(['status'=>'success','message'=>$res]);
-        }else{
-            echo json_encode(['status'=>'failed','message'=>'something went wrong']);
-        }
-        // print_r($data);
-        // exit;
-    }
 }
     
 public function status()

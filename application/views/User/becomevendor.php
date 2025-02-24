@@ -299,7 +299,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" name="vendor_phone" value="<?= set_value('vendor_phone')?>"
+                        <input type="text" name="vendor_phone" oninput="checkPhone(this.value)" value="<?= set_value('vendor_phone')?>"
                             class="form-control numbers-only phone" id="phoneNumber" placeholder="Enter your number"
                             required>
                         <small class="error-message phoneError"></small>
@@ -311,11 +311,7 @@
                         <input type="text" name="vendor_gst" value="<?= set_value('vendor_gst')?>" class="form-control"
                             id="gstNumber" placeholder="Enter your GST number" required>
                     </div>
-                    <div class="col-md-6">
-                        <label for="joiningDate" class="form-label">Joining Date</label>
-                        <input type="date" name="vendor_joining_date" value="<?= set_value('vendor_joining_date')?>"
-                            class="form-control date" id="joiningDate" placeholder="Enter joining date">
-                    </div>
+
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -362,13 +358,20 @@
                                 </div> -->
                     <div class="col-md-6">
                         <label for="country" class="form-label">Country</label>
-                        <select class="form-control" name="vendor_country" id="country"
-                            onchange="getStates(this.value)">
-                            <option value="">Select</option>
-                            <?php foreach ($data['countries'] as $country) { ?>
-                            <option value="<?= $country['id'] ?>"><?= $country['name'] ?></option>
-                            <?php } ?>
-                        </select>
+                        <select class="form-control" name="vendor_country" id="country" onchange="getStates(this.value)">
+    <option value="">Select</option>
+    <?php if (!empty($data['countries'])) { 
+        foreach ($data['countries'] as $country) { 
+            $selected = (isset($_POST['vendor_country']) && $_POST['vendor_country'] == $country['id']) ? 'selected' : ''; 
+    ?>
+        <option value="<?= $country['id'] ?>" <?= $selected ?>>
+            <?= htmlspecialchars($country['country_name']) ?>
+        </option>
+    <?php 
+        } 
+    } ?>
+</select>
+
                     </div>
                     <div class="col-md-6">
                         <label for="city" class="form-label">City</label>
@@ -417,12 +420,12 @@
                         <input type="text" name="account_name" value="<?= set_value('account_name')?>"
                             class="form-control text-only" id="name-bank" placeholder="Enter your name" required>
                     </div>
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <label for="email-bank" class="form-label">Account Email</label>
                         <input type="email" name="account_email" value="<?= set_value('account_email')?>"
                             class="form-control email" id="email-bank" placeholder="Enter your email">
                         <small class="error-message emailError"></small>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="row mb-1">
                     <div class="col-md-6">
@@ -455,7 +458,7 @@
             </form>
         </div>
         <div class="form-section" data-tab="3">
-            <form>
+            <form id="signatureForm">
                 <!-- Supplier E-Signature Form Content -->
                 <h3>Supplier E-Signature</h3>
                 <!-- Add your form fields here -->
@@ -468,18 +471,18 @@
                         </label>
                         <div class="col-md-11">
                             <label for="name-bank" class="form-label">Full Legal Name</label>
-                            <input type="text" class="form-control text-only " id="legal-name"
+                            <input type="text" name="vendor_full_name" class="form-control text-only " id="legal-name"
                                 placeholder="Enter Full Legal Name" required>
                         </div>
                         <div class="row my-3 gap-3 d-flex flex-row justify-content-start">
-                            <button style="width:170px" class="btn btn-primary  ms-2">SAVE NOW</button>
+                            <button type="button" onclick="saveSignature()" style="width:170px" class="btn btn-primary  ms-2">SAVE NOW</button>
                             <button style="width:170px" class="btn btn-outline-dark">CANCEL NOW</button>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="signature" class="form-label">Upload E-Signature</label>
-                            <input type="file" class="form-control" id="signature" accept="image/*"
+                            <input type="file" name="signature_document" class="form-control" id="signature" accept="image/*"
                                 onchange="previewSignature(event)" required>
                         </div>
                         <div class="mb-3">
@@ -952,6 +955,36 @@ function toggleVisibility(inputId) {
 }
 
 
+function checkPhone(number) {
+    console.log(number);
+
+    $.ajax({
+        url: '<?= base_url('checkPhone') ?>',
+        type: 'POST',
+        data: JSON.stringify({ 'number': number }),  
+        contentType: 'application/json',  
+        success: function(response) {
+            try {
+                let res = JSON.parse(response);
+                if (res.status === 'success') {
+                    document.getElementById('basicId').innerText = res.id;
+                    showSuccessModal();
+                } else {
+                    showErrorModal();
+                }
+            } catch (e) {
+                console.error('Parsing error:', e);
+                showErrorModal();
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            showErrorModal();
+        }
+    });
+}
+
+
 document.getElementById("confirm-password").addEventListener("input", function() {
     const newPassword = document.getElementById("new-password").value;
     const confirmPassword = this.value;
@@ -1050,21 +1083,22 @@ $(document).ready(function() {
     });
 });
 
-$('#countryDropdown').on('change', function() {
-    const countryId = $(this).val(); // Get the selected country ID
-    if (countryId) {
-        getStates(countryId); // Fetch and populate states
-    } else {
-        $('#state').html('<option value="">Select State</option>'); // Reset dropdown if no country is selected
-    }
-});
+// $('#countryDropdown').on('change', function() {
+//     const countryId = $(this).val(); // Get the selected country ID
+//     if (countryId) {
+//         getStates(countryId); // Fetch and populate states
+//     } else {
+//         $('#state').html('<option value="">Select State</option>'); // Reset dropdown if no country is selected
+//     }
+// });
 
 
 
 function getStates(countryId) {
+    
     // Reset the state dropdown and show a loading indicator
     $('#state').html('<option value="">Loading...</option>');
-
+    console.log(countryId);
     if (countryId) {
         $.ajax({
             url: '<?= base_url('getStates') ?>', // Replace with your actual endpoint
@@ -1171,6 +1205,35 @@ function saveBank() {
         }
     });
 }
+
+
+
+function saveSignature() {
+        let vendorId = "<?= $this->session->userdata('vendor_app_id') ?>";
+        let vendorExp = "<?= $this->session->userdata('vendor_exp') ?>";
+        let currentTime = "<?= time() ?>";
+
+        if (vendorId && vendorExp > currentTime) {
+            console.log('Hi');
+        }
+
+        const formElement = document.getElementById('signatureForm');
+        const formData = new FormData(formElement);
+        formData.append('vendor_id', vendorId);
+
+        // Debugging
+        console.log("Vendor ID:", vendorId);
+        console.log("Form Data:", [...formData.entries()]);
+
+        // Example: Sending data via AJAX (Modify URL accordingly)
+        fetch('save-signature', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => showSuccessModal())
+        .catch(error => console.error('Error:', error));
+    }
 // Function to show success modal
 function showSuccessModal() {
     document.getElementById("successModal").style.display = "flex";

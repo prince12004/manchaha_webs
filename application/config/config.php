@@ -442,6 +442,9 @@ $config['standardize_newlines'] = FALSE;
 |
 */
 $config['global_xss_filtering'] = FALSE;
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 /*
 |--------------------------------------------------------------------------
