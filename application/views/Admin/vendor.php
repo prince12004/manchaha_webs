@@ -114,6 +114,10 @@
                            
                             <tr>
                                 <td>01</td>
+                            <?php foreach ($vendordata['vendors'] as $vendor) {?>
+                                
+                           
+                            <tr>
                                         <td>
                                             <img class="user-image" src="<?= base_url('/uploads/vendorimages/').$vendor['vendor_image'] ?>" alt="User Image"><?= $vendor['vendor_name']?>
                                         </td>
