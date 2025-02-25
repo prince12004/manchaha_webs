@@ -271,7 +271,7 @@ input[type="number"]::-webkit-inner-spin-button {
                     </div>
                     <div class="col-md-6">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="number" name="vendor_phone" oninput="checkPhone(this.value)" value="<?= set_value('vendor_phone') ?>"
+                        <input type="text" name="vendor_phone" oninput="checkPhone(this.value)" value="<?= set_value('vendor_phone')?>"
                             class="form-control numbers-only phone" id="phoneNumber" placeholder="Enter your number"
                             required>
                         <small class="error-message phoneError"></small>
@@ -283,12 +283,6 @@ input[type="number"]::-webkit-inner-spin-button {
                         <input type="text" name="vendor_gst" value="<?= set_value('vendor_gst') ?>" class="form-control"
                             id="gstNumber" placeholder="Enter your GST number" required>
                     </div>
-
-                    <div class="col-md-6">
-                    <label for="address" class="form-label">Address</label>
-                    <input type="text" name="vendor_address" value="<?= set_value('vendor_address') ?>"
-                        class="form-control" id="address" placeholder="Enter address...">
-                </div>
 
                 </div>
                 <div class="row mb-3">
@@ -336,19 +330,19 @@ input[type="number"]::-webkit-inner-spin-button {
                                 </div> -->
                     <div class="col-md-6">
                         <label for="country" class="form-label">Country</label>
-                        <select class="form-controls" name="vendor_country" id="country" onchange="getStates(this.value)">
-                            <option value="">Select</option>
-                            <?php if (!empty($data['countries'])) {
-                                foreach ($data['countries'] as $country) {
-                                    $selected = (isset($_POST['vendor_country']) && $_POST['vendor_country'] == $country['id']) ? 'selected' : '';
-                            ?>
-                                    <option value="<?= $country['id'] ?>" <?= $selected ?>>
-                                        <?= htmlspecialchars($country['country_name']) ?>
-                                    </option>
-                            <?php
-                                }
-                            } ?>
-                        </select>
+                        <select class="form-control" name="vendor_country" id="country" onchange="getStates(this.value)">
+    <option value="">Select</option>
+    <?php if (!empty($data['countries'])) { 
+        foreach ($data['countries'] as $country) { 
+            $selected = (isset($_POST['vendor_country']) && $_POST['vendor_country'] == $country['id']) ? 'selected' : ''; 
+    ?>
+        <option value="<?= $country['id'] ?>" <?= $selected ?>>
+            <?= htmlspecialchars($country['country_name']) ?>
+        </option>
+    <?php 
+        } 
+    } ?>
+</select>
 
                     </div>
                     <div class="col-md-6">
@@ -924,42 +918,40 @@ input[type="number"]::-webkit-inner-spin-button {
     });
 
 
-    function toggleVisibility(inputId) {
-        const input = document.getElementById(inputId);
-        input.type = input.type === "password" ? "text" : "password";
-    }
+function toggleVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    input.type = input.type === "password" ? "text" : "password";
+}
 
 
-    function checkPhone(number) {
-        console.log(number);
+function checkPhone(number) {
+    console.log(number);
 
-        $.ajax({
-            url: '<?= base_url('checkPhone') ?>',
-            type: 'POST',
-            data: JSON.stringify({
-                'number': number
-            }),
-            contentType: 'application/json',
-            success: function(response) {
-                try {
-                    let res = JSON.parse(response);
-                    if (res.status === 'success') {
-                        document.getElementById('basicId').innerText = res.id;
-                        showSuccessModal();
-                    } else {
-                        showErrorModal();
-                    }
-                } catch (e) {
-                    console.error('Parsing error:', e);
+    $.ajax({
+        url: '<?= base_url('checkPhone') ?>',
+        type: 'POST',
+        data: JSON.stringify({ 'number': number }),  
+        contentType: 'application/json',  
+        success: function(response) {
+            try {
+                let res = JSON.parse(response);
+                if (res.status === 'success') {
+                    document.getElementById('basicId').innerText = res.id;
+                    showSuccessModal();
+                } else {
                     showErrorModal();
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
+            } catch (e) {
+                console.error('Parsing error:', e);
                 showErrorModal();
             }
-        });
-    }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            showErrorModal();
+        }
+    });
+}
 
 
     document.getElementById("confirm-password").addEventListener("input", function() {
@@ -1060,35 +1052,35 @@ input[type="number"]::-webkit-inner-spin-button {
         });
     });
 
-    // $('#countryDropdown').on('change', function() {
-    //     const countryId = $(this).val(); // Get the selected country ID
-    //     if (countryId) {
-    //         getStates(countryId); // Fetch and populate states
-    //     } else {
-    //         $('#state').html('<option value="">Select State</option>'); // Reset dropdown if no country is selected
-    //     }
-    // });
+// $('#countryDropdown').on('change', function() {
+//     const countryId = $(this).val(); // Get the selected country ID
+//     if (countryId) {
+//         getStates(countryId); // Fetch and populate states
+//     } else {
+//         $('#state').html('<option value="">Select State</option>'); // Reset dropdown if no country is selected
+//     }
+// });
 
 
 
-    function getStates(countryId) {
-
-        // Reset the state dropdown and show a loading indicator
-        $('#state').html('<option value="">Loading...</option>');
-        console.log(countryId);
-        if (countryId) {
-            $.ajax({
-                url: '<?= base_url('getStates') ?>', // Replace with your actual endpoint
-                type: 'POST',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    id: countryId
-                }),
-                success: function(response) {
-                    if (response.status === 'success') {
-                        let states = response.response;
-                        let options = '<option value="">Select State</option>';
+function getStates(countryId) {
+    
+    // Reset the state dropdown and show a loading indicator
+    $('#state').html('<option value="">Loading...</option>');
+    console.log(countryId);
+    if (countryId) {
+        $.ajax({
+            url: '<?= base_url('getStates') ?>', // Replace with your actual endpoint
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                id: countryId
+            }),
+            success: function(response) {
+                if (response.status === 'success') {
+                    let states = response.response;
+                    let options = '<option value="">Select State</option>';
 
                         if (states.length > 0) {
                             states.forEach(function(state) {
@@ -1158,34 +1150,34 @@ input[type="number"]::-webkit-inner-spin-button {
         const formData = new FormData(formElement);
         formData.append('vendor_id', id);
 
-        //formData.append('id',id);
-        $.ajax({
-            url: '<?= base_url('saveBank') ?>',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                res = JSON.parse(response);
-                if (res.status === 'success') {
-                    showSuccessModal()
-                    // alert('Vendor data saved successfully!');
-                } else {
-                    showErrorModal()
-                    // alert('please try again later');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
+    //formData.append('id',id);
+    $.ajax({
+        url: '<?= base_url('saveBank') ?>',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            res = JSON.parse(response);
+            if (res.status === 'success') {
+                showSuccessModal()
+                // alert('Vendor data saved successfully!');
+            } else {
                 showErrorModal()
-                // alert('An error occurred while saving vendor data. Please try again.');
+                // alert('please try again later');
             }
-        });
-    }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            showErrorModal()
+            // alert('An error occurred while saving vendor data. Please try again.');
+        }
+    });
+}
 
 
 
-    function saveSignature() {
+function saveSignature() {
         let vendorId = "<?= $this->session->userdata('vendor_app_id') ?>";
         let vendorExp = "<?= $this->session->userdata('vendor_exp') ?>";
         let currentTime = "<?= time() ?>";
@@ -1204,17 +1196,17 @@ input[type="number"]::-webkit-inner-spin-button {
 
         // Example: Sending data via AJAX (Modify URL accordingly)
         fetch('save-signature', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => showSuccessModal())
-            .catch(error => console.error('Error:', error));
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => showSuccessModal())
+        .catch(error => console.error('Error:', error));
     }
-    // Function to show success modal
-    function showSuccessModal() {
-        document.getElementById("successModal").style.display = "flex";
-    }
+// Function to show success modal
+function showSuccessModal() {
+    document.getElementById("successModal").style.display = "flex";
+}
 
     // Function to show error modal
     function showErrorModal() {
