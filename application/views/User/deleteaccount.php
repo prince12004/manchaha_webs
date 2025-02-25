@@ -104,6 +104,14 @@
     font-size: 14px;
     margin-top: 5px;
 }
+@media (max-width: 768px) {
+    .mains-fields{
+    width: 90% !important;
+  }
+  .newsLetter-section{
+    margin-bottom: 30px !important;
+  }    
+}
 </style>
 
 <section class="main-deletes">

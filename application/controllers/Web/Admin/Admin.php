@@ -264,9 +264,34 @@ class Admin extends Ship
         // exit;
         $this->load->view('Admin/category',['categories'=>$categories]);
     }
-    public function subCategory()
+    public function subCategory($page=1)
     {
-        $this->load->view('Admin/subcategory');    
+        $limit = 15;
+        $offset = ($page - 1) * $limit; // Calculate offset
+        
+        $categories = $this->AdminModel->getCategories();
+        $data['categories'] = $categories;
+        
+        $data['subcategories'] = $this->db->select('c1.*, c2.categoryName as parentCategoryName')
+            ->from('categories as c1')
+            ->join('categories as c2', 'c1.parentCategoryID = c2.CategoryID', 'left') // Self-join
+            ->where('c1.is_child', 1)
+            ->order_by('c1.IsActive', 'ASC')
+            ->limit($limit, $offset)
+            ->get()
+            ->result_array();
+        $totalRecords = $this->db->from('categories')->where('is_child', 1)->count_all_results();
+        $totalPages = ceil($totalRecords / $limit);
+        $data['pagination'] = [
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'total_records' => $totalRecords,
+            'limit_per_page' => $limit
+        ];
+// echo'<pre>';
+// print_r($data['subcategories']);
+// exit;
+        $this->load->view('Admin/subcategory',['data'=>$data]);    
     }
     public function allCustomers()
     {
@@ -455,6 +480,7 @@ public function updateProductDetails() {
 	
 	    public function savecategory()
     {
+        $this->load->library('upload');
         $categoryName = $this->input->post('categoryname');
         $subcategoryID = $this->input->post('subcategoryid');
         $categoryStatus = $this->input->post('categorystatus');
@@ -464,7 +490,7 @@ public function updateProductDetails() {
             $config['allowed_types'] = 'jpg|jpeg|png|gif';
             $config['file_name'] = time().'_'.rand(100,999);
             
-            $this->load->library('upload', $config);
+            $this->upload->initialize($config);
     
             if ($this->upload->do_upload('categoryimage')) {
                 $fileData = $this->upload->data();
@@ -650,7 +676,36 @@ public function updateProductDetails() {
 
     public function vender()
     {
-        $this->load->view('Admin/vendor');    
+        $this->load->model('AdminModel');
+       
+        $data = $this->AdminModel->vendors();
+        // print_r($data);
+        // exit;
+        $vendordata['vendors'] = $data;
+        $this->load->view('Admin/vendor',['vendordata'=>$vendordata]);    
+    }
+
+
+    public function updateVendor() {
+        header("Content-Type: application/json");
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (isset($data['id']) && isset($data['is_verified'])) {
+            $id = intval($data['id']);
+            $status = intval($data['is_verified']); // 1 = Active, 0 = Inactive
+
+            $this->db->where('id', $id);
+            $update = $this->db->update('vendors', ['is_verified' => $status]);
+
+            if ($update) {
+                echo json_encode(["success" => true,"message"=>"vendor updated successfully"]);
+            } else {
+                echo json_encode(["success" => false,"message"=>"something went wrong"]);
+            }
+        } else {
+            echo json_encode(["success" => false, "message" => "Invalid parameters"]);
+        }
     }
     public function bannerHeroSection()
     {

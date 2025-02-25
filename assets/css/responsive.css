@@ -1350,10 +1350,11 @@
   
   .order-details-page .row{
     display: flex;
-    flex-direction: column-reverse;
-    gap:30px;
+    flex-direction: column;
+    gap: 5px;
   
   }
+
   .order-details-page .row .col-md-8{
     overflow-x: scroll;
     border-top: 1px solid #ccc;
@@ -1361,7 +1362,7 @@
     flex-direction: column-reverse;
   }
   .order-details-page .row .col-md-8 .order-tracking{
-    width: max-content;
+    width: 98%;
   }
   .order-details-page .row .col-md-8 .order-tracking .step{
     margin-right: 20px;
@@ -1407,4 +1408,4 @@
 		.main-ratings {
 			width: 85% !important;
 }
-  
+}

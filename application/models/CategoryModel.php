@@ -76,6 +76,7 @@ public function getCategoriesById($categoryID)
     $data['category_description'],
     $data['category_image']
     ]);
+    return $this->db->insert_id();
   }
 }
 ?>

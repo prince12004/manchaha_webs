@@ -991,5 +991,17 @@ public function saveReview()
 
 
 
+public function return(){
+    $this->load->view('User/header');
+    $this->load->view('User/return_order');
+    $this->load->view('User/footer');
+}
+
+public function replace(){
+    $this->load->view('User/header');
+    $this->load->view('User/replace_order');
+    $this->load->view('User/footer');
+}
+
 }
 ?>

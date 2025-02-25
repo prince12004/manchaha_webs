@@ -389,6 +389,22 @@ public function saveVendorAccount($data)
     return $insert;
 }
 
+public function saveSignature($data)
+{
+    $this->db->insert('vendor_signature', $data);
+    $insert = $this->db->insert_id();
+    return $insert;
+}
+
+public function vendors()
+{
+   return $this->db->select('vendors.vendor_image,vendors.vendor_name,vendors.id, vendors.vendor_email, vendors.vendor_phone, vendors.vendor_state, vendors.vendor_city, vendors.verification_date, vendors.application_date, states.name as state_name,vendors.is_verified')
+                   ->from('vendors')
+                   ->join('states', 'states.id = vendors.vendor_state') // Corrected JOIN syntax
+                   ->get()
+                   ->result_array();
+}
+
 public function getImage($sku)
 {
     $result = $this->db->select('jwellary_varient.varient_id, MIN(jwellary_images.image) AS image')

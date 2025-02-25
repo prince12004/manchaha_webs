@@ -211,9 +211,20 @@ $tax = $trackdata['track']['data']['products'][0]['tax'];
                               </div> -->
                     </div>
 					
-					                    <div>
-                        <button class="btn btn-primary" onclick="review('<?= $trackdata['order']['product_id'] ?>','<?= $trackdata['order']['varient_id'] ?>')" >Add Review</button>
+                    <div>        
+                </div>
+					                    <div class="button-adds">
+                                        <button class="btn btn-primary" onclick="review('<?= $trackdata['order']['product_id'] ?>','<?= $trackdata['order']['varient_id'] ?>')" >Add Review</button>
+
+                        <a href="<?= base_url('return-order')?>">
+                        <button class="btn btn-primary" > Return</button>
+                        </a>
+
+                        <a href="<?= base_url('replace-order')?>">
+                        <button class="btn btn-primary" > Replacement</button>
+                        </a>
                     </div>
+
 
                 </div>
 
@@ -303,6 +314,23 @@ function downloadInvoice(shipmentID) {
 }
 
 </script>
+
+<style>
+     .main-page-section{
+    margin-bottom: 25px !important;
+}
+.card{
+    margin-bottom: 10px !important  ;
+}
+.button-adds{
+    display: flex;
+    gap: 5px;
+}
+.btn-primary{
+    font-size: 15px;
+    font-weight: 400;
+}
+</style>
 
 </body>
 
