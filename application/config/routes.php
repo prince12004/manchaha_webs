@@ -172,6 +172,8 @@ $route['returnorder'] = 'Web/Admin/Admin/returnorder';
 $route['returntracking'] = 'Web/Admin/Admin/returntracking';
 $route['deletVarientImage'] = 'Web/Admin/Admin/deletVarientImage';
 $route['order-invoice/(:num)'] = 'Web/User/User/generate_invoice/$1';
+$route['return-order'] = 'Web/User/User/return';
+$route['replace-order'] = 'Web/User/User/replace';
 
 $route['add-review'] = 'Web/User/User/addReview';
 $route['review-page'] = 'Web/User/User/reviewPage';

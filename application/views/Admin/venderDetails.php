@@ -104,6 +104,7 @@
                                 <table id="vendor-customer-Table" class=" table hover">
                                     <thead>
                                         <tr>
+                                        
                                             <th>Customer Name</th>
                                             <th>Phone</th>
                                             <th>Email ID</th>

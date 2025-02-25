@@ -96,10 +96,11 @@
                     <table id="vendor-list-Table" class=" table hover">
                         <thead>
                             <tr>
+                            <th>S.No</th>
                                 <th>Vendor</th>
                                 <th>Email ID</th>
                                 <th>Phone</th>
-                                <th>Location</th>
+                                <th>State</th>
                                 <th>City</th>
                                 <th>Orders</th>
                                 <th>Joining</th>
@@ -112,6 +113,7 @@
                                 
                            
                             <tr>
+                                <td>01</td>
                                         <td>
                                             <img class="user-image" src="<?= base_url('/uploads/vendorimages/').$vendor['vendor_image'] ?>" alt="User Image"><?= $vendor['vendor_name']?>
                                         </td>

@@ -988,8 +988,8 @@ details{
 
 .profile-img #uploadIcon{
     position: absolute;
-    bottom: 5px;
-    left: 245px;
+    bottom: -11px;
+    left: 281px;
     border-radius: 50%;
     padding: 5px;
     cursor: pointer;

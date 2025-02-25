@@ -519,16 +519,16 @@ $tax = 0
                 </div>
 
 
-<div id="alertModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <!-- Logo in the center -->
-        <div class="modal-logo">
-            <img src="<?= base_url('/assets/images/images/header-new-logo.png') ?>" alt="Logo">
+    <div id="alertModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <!-- Logo in the center -->
+            <div class="modal-logo">
+                <img src="<?= base_url('/assets/images/images/header-new-logo.png') ?>" alt="Logo">
+            </div>
+            <h2 id="alertResponse"></h2>
+            <button class="close-btn" onclick="closeAlertModal()">Close</button>
         </div>
-        <h2 id="alertResponse"></h2>
-        <button class="close-btn" onclick="closeAlertModal()">Close</button>
     </div>
-</div>
 
 
 <div id="paymentCancelModal" class="payment-cancel-modal" style="display: none;">
@@ -1020,7 +1020,7 @@ function payNow() {
             console.log(response);
             document.getElementById('alertResponse').innerHTML = 'Something went wrong';
             alertModal();
-            setTimeout(hideModal, 000); // Hide modal after 5 sec
+            setTimeout(hideModal, 4000); // Hide modal after 5 sec
         }
         },
         error: function(xhr, status, error) {

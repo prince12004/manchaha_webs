@@ -161,11 +161,11 @@ if ($this->session->userdata('userToken')) {
                     </li>
                 </ul>
                 <div id="profile-menu">
-                    <!-- <div class="become-button">
+                    <div class="become-button">
                        <a href="<?= base_url('seller-form') ?>">
                        <button>Become a Seller</button>
                             </a>
-                        </div> -->
+                        </div>
                     <ul id="mainprofileUL" class="navbar-nav ms-auto mb-2 mb-lg-0 ">
                         <li class="nav-item position-relative ms-2">
                             <a class="nav-link" href="<?= base_url('Web/User/User/wishlist') ?>">
