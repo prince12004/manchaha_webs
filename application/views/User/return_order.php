@@ -201,9 +201,10 @@
 
 <section class="new-return">
     <div class="mains-section">
+        <form id="returnForm">
         <div class="rertuns">
             <label for="return-reason">Reason for Return</label>
-            <select id="return-reason" required onchange="showImageInput()">
+            <select name="returnreason" id="return-reason" required onchange="showImageInput()">
                 <option value="">Select a reason</option>
                 <option value="Damaged">Damaged Item</option>
                 <option value="Wrong Size">Wrong Size</option>
@@ -212,21 +213,22 @@
             </select>
 
             <label for="comments">Comments <span>*</span> </label>
-            <input type="text" id="comments" placeholder="Enter your comment" required>
+            <input type="text" name="comment" id="comments" placeholder="Enter your comment" required>
 
             <div id="image-container" style="display: none;">
                 <label for="image-upload" class="upload-btn">
                     <i class="fa fa-upload"></i> Upload Image
                 </label>
-                <input type="file" id="image-upload" accept="image/*" onchange="previewImage()" required>
+                <input type="file" name="returnimage" id="image-upload" accept="image/*" onchange="previewImage()" required>
             </div>
 
             <div id="preview-container" class="preview-container">
                 <!-- Image previews will appear here -->
             </div>
 
-            <button class="submit-btn" onclick="submitForm(event)">Submit Return Request</button>
+            <button class="submit-btn" type="button" onclick="submitreturn()">Submit Return Request</button>
         </div>
+        </form>
     </div>
 </section>
 
@@ -289,20 +291,35 @@ function previewImage() {
     }
 
     // Function to submit the form, ensuring all required fields are filled
-    function submitForm(event) {
-        event.preventDefault(); // Prevent form submission for validation
 
-        // Check if all required fields are filled
-        const reason = document.getElementById('return-reason').value;
-        const comments = document.getElementById('comments').value;
-        const imageCount = document.getElementById('preview-container').children.length / 2; // Each image has a delete button
-
-        if (!reason || !comments || imageCount === 0) {
-            showAlert('Please fill in all required fields and upload at least one image.');
-            return;
-        }
-
-        // If everything is filled, you can submit the form here or perform the required action
-        showAlert('Return request submitted successfully!');
+function submitreturn() {
+    const reason = document.getElementById('return-reason').value;
+    const comments = document.getElementById('comments').value;
+    const imageInput = document.getElementById('image-upload');
+    
+    if (!reason || !comments) {
+        showAlert('Please fill in all required fields.');
+        return;
     }
+
+    let formData = new FormData();
+    formData.append("return_reason", reason);
+    formData.append("comment", comments);
+    if (imageInput.files.length > 0) {
+        formData.append("returnimage", imageInput.files[0]);
+    }
+    $.ajax({
+        url: '<?= base_url('submitreturn')?>', 
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            showAlert('Return request submitted successfully!');
+        },
+        error: function(xhr, status, error) {
+            showAlert('Error submitting return request. Try again.');
+        }
+    });
+}
 </script>

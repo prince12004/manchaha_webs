@@ -454,8 +454,11 @@ public function processShip($data)
     // Add total charges after the loop
     $total = ['total' => $data['charges']['total']]; // Corrected to match array structure
     
+    if($data['charges']['payment_type'] == 'cod'){
+        $carge = 40;
+    }
     // Call the sendMail method with the updated response data
-    $this->sendMail($shippingRes,$total);  // Ensure that sendMail expects the correct data structure
+    $this->sendMail($shippingRes,$total,$carge);  // Ensure that sendMail expects the correct data structure
 
     return $shippingRes;  // Return the response for the process
 }
@@ -723,6 +726,16 @@ public function orderstatus($id)
 }
 
 
+
+public function makereturn()
+{
+    $data = $this->input->post();
+   $this->session->set_userdata('return_order_id',$data['order_id']);
+   $this->session->set_userdata('return_user_id',$data['user_id']);
+    return;
+}
+
+
 public function generate_invoice($id) {
     require_once FCPATH . 'vendor/autoload.php';
     $order = $this->UserModel->getOrder($id);
@@ -749,7 +762,7 @@ public function generate_invoice($id) {
 }
 
 	
-public function sendMail($data,$total)
+public function sendMail($data,$total,$ptypr)
 {
     // Get user details
     $token = $this->session->userdata('userToken');
@@ -798,7 +811,7 @@ public function sendMail($data,$total)
             $email_content .= "
             </tbody>
         </table>
-
+        <p><strong>Shipping Charge:</strong> ₹{$ptypr}</p>
         <p><strong>Total Price:</strong> ₹{$total['total']}</p>
         <p>If you have any questions or need assistance, please feel free to contact our customer support team at <a href='mailto:support@mnnchaha.com'>support@mnnchaha.com</a>.</p>
 
@@ -989,12 +1002,38 @@ public function saveReview()
     }
 }
 
-
-
-public function return(){
+public function return()
+{
     $this->load->view('User/header');
     $this->load->view('User/return_order');
     $this->load->view('User/footer');
+}
+
+
+public function submitreturn() {
+    $this->load->library('upload');
+    $returndata = $this->input->post();
+    if (!empty($_FILES['returnimage']['name'])) {
+        $config['upload_path']   = './uploads/returns'; 
+        $config['allowed_types'] = 'jpg|jpeg|png|gif';
+        $config['max_size']      = 2048; 
+        $config['file_name']     = time() . '_' . rand(1111,9999); 
+
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('returnimage')) {
+            $uploadData = $this->upload->data();
+            $returndata['image'] = $uploadData['file_name'];
+        } else {
+            echo json_encode(['status' => 'error', 'message' => $this->upload->display_errors()]);
+            return;
+        }
+    }
+    $returndata['order_id'] = $this->session->userdata('return_order_id');
+    $returndata['user_id'] = $this->session->userdata('return_user_id');
+    $returndata['return_type'] = 1;
+    $this->db->insert('order_returns', $returndata);
+    echo json_encode(['status' => 'success', 'message' => 'Return request submitted!', 'data' => $returndata]);
 }
 
 public function replace(){
