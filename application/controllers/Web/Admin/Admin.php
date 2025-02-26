@@ -921,4 +921,8 @@ public function updateProductDetails() {
         $this->db->where('image_id', $id['id'])->delete('jwellary_images');
         echo json_encode(['status'=>'success','message'=>'Image Deleted SuccessFully']);
     }
+
+    public function viewdetails(){
+        $this->load->view('Admin/viewdetails');
+    }
 }

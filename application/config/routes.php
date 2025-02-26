@@ -175,6 +175,7 @@ $route['order-invoice/(:num)'] = 'Web/User/User/generate_invoice/$1';
 $route['return-order'] = 'Web/User/User/return';
 $route['submitreturn'] = 'Web/User/User/submitreturn';
 $route['accept-return'] = 'Web/Admin/Admin/accept_return';
+$route['viewdetails'] = 'Web/Admin/Admin/viewdetails';
 
 $route['replace-order'] = 'Web/User/User/replace';
 

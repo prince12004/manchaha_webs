@@ -1987,8 +1987,11 @@ line-height: 15px;
   .vieews{
     border: 2px solid #ccc;
     border-radius: 50px;
-    width: 50px;
+    width: 70px;
     height: 50px;
+  }
+  .main-content::-webkit-scrollbar{
+    display: none;
   }
 .page-tab.active {
     font-weight: bold;      
