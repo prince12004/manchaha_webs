@@ -102,7 +102,7 @@
                                 <th>Phone</th>
                                 <th>State</th>
                                 <th>City</th>
-                                <th>Orders</th>
+                                
                                 <th>Joining</th>
                                 <th>Published</th>
                                 <th>Action</th>
@@ -113,11 +113,8 @@
                                 
                            
                             <tr>
-                                <td>01</td>
-                            <?php foreach ($vendordata['vendors'] as $vendor) {?>
-                                
-                           
-                            <tr>
+                                        <td>01</td>
+                          
                                         <td>
                                             <img class="user-image" src="<?= base_url('/uploads/vendorimages/').$vendor['vendor_image'] ?>" alt="User Image"><?= $vendor['vendor_name']?>
                                         </td>
@@ -125,7 +122,7 @@
                                         <td><?= $vendor['vendor_phone'] ?></td>
                                         <td><?= $vendor['state_name'] ?></td>
                                         <td><?= $vendor['vendor_city'] ?></td>
-                                        <td>0 Orders</td>
+                                       
                                         <td>
                                             <?php 
                                             $date = new DateTime($vendor['application_date']);

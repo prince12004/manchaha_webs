@@ -45,7 +45,7 @@
                             src="<?= base_url('/assets/images/images/orderHistory.png') ?>" alt="icon">Order</a></li>
                 <li><a href="<?= base_url('vender') ?>"><img class="ms-4 me-4"
                             src="<?= base_url('/assets/images/images/orderHistory.png') ?>" alt="icon">Vendor</a></li>
-                <li><a href="<?= base_url('returntracking') ?>"><img class="ms-4 me-4"
+                <li><a href="<?= base_url('returntracking/new') ?>"><img class="ms-4 me-4"
                             src="<?= base_url('/assets/images/images/orderHistory.png') ?>" alt="icon"> Order Returns</a></li>
                 <li>
                     <a href="<?= base_url('logout')?>"><img class="ms-4 me-4"

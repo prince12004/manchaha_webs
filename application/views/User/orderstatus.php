@@ -70,7 +70,7 @@ $tax = $trackdata['track']['data']['products'][0]['tax'];
                            <?php  $id= $this->uri->segment('2'); ?>
 
                
-				<li class="col-12 d-flex justify-content-between"> <span><img class="m-2" src="<?= base_url('assets/images/date.png')?>"
+				            <li class="col-12 d-flex justify-content-between"> <span><img class="m-2" src="<?= base_url('assets/images/date.png')?>"
                                     alt="" width="42px"> Invoice:</span> <span class="detail-text-B"
                                 id="added-date"><button onclick="downloadInvoice('<?= $trackdata['track']['data']['id']?>')" class="btn btn-primary">Download</button>
                             
@@ -216,9 +216,9 @@ $tax = $trackdata['track']['data']['products'][0]['tax'];
 					                    <div class="button-adds">
                                         <button class="btn btn-primary" onclick="review('<?= $trackdata['order']['product_id'] ?>','<?= $trackdata['order']['varient_id'] ?>')" >Add Review</button>
 
-                        <a href="<?= base_url('return-order')?>">
-                        <button class="btn btn-primary" > Return</button>
-                        </a>
+                        
+                        <button class="btn btn-primary" type="button" onclick="returning('<?= $trackdata['order']['order_id']?>','<?= $trackdata['order']['user_id']?>')" > Return</button>
+                        
 
                         <a href="<?= base_url('replace-order')?>">
                         <button class="btn btn-primary" > Replacement</button>
@@ -276,6 +276,22 @@ $tax = $trackdata['track']['data']['products'][0]['tax'];
         }
     });
 }
+
+
+
+function returning(order_id, user_id) {
+    // console.log(order_id);
+    $.ajax({
+        url: "<?= base_url('makereturn') ?>",
+        type: "POST",
+        data: { order_id: order_id, user_id: user_id },
+        success: function(response) {
+         window.location.href = '<?= base_url('return-order') ?>';
+        }
+    });
+}
+
+
 	
 function downloadInvoice(shipmentID) {
     // Check if the shipmentID is valid

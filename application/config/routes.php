@@ -121,8 +121,8 @@ $route['saveCartData'] = 'Web/User/User/saveCartData';
 $route['checkout'] = 'Web/User/User/paymentpage';
 $route['cart'] = 'Web/User/User/cart';
 $route['addNewImage'] = 'Web/Admin/Admin/addNewImage';
-$route['addNewVarient'] = 'Web/Admin/Admin/addNewVarient';
 $route['saveAddress'] = 'Web/User/User/Address';
+$route['makereturn'] = 'Web/User/User/makereturn';
 $route['payment'] = 'Web/User/User/payment';
 $route['vender'] = 'Web/Admin/Admin/vender';
 $route['bannerHeroSection'] = 'Web/Admin/Admin/bannerHeroSection';
@@ -169,10 +169,13 @@ $route['cancelled/(:num)'] = 'Web/Admin/Admin/cancelled/$1';
 $route['orderHistory/(:num)'] = 'Web/Admin/Admin/orderHistory/$1';
 $route['cancel-order'] = 'Web/Admin/Admin/cancel_order';
 $route['returnorder'] = 'Web/Admin/Admin/returnorder';
-$route['returntracking'] = 'Web/Admin/Admin/returntracking';
+$route['returntracking/(:any)'] = 'Web/Admin/Admin/returntracking/$1';
 $route['deletVarientImage'] = 'Web/Admin/Admin/deletVarientImage';
 $route['order-invoice/(:num)'] = 'Web/User/User/generate_invoice/$1';
 $route['return-order'] = 'Web/User/User/return';
+$route['submitreturn'] = 'Web/User/User/submitreturn';
+$route['accept-return'] = 'Web/Admin/Admin/accept_return';
+
 $route['replace-order'] = 'Web/User/User/replace';
 
 $route['add-review'] = 'Web/User/User/addReview';

@@ -164,8 +164,30 @@ public function getOrderDetails($shipment_id)
                     ->join('users', 'users.UserID = orders.user_id') // Join users table
                     ->join('jwellary_varient','jwellary_varient.varient_id = orders.varient_id')
                     ->get()
-                    ->result_array(); // Fetch as an associative array
+                    ->row_array(); // Fetch as an associative array
 }
+
+
+public function getProductDetails($product_id, $varient_id)
+{
+    return $this->db->select('jwellaries.*, jwellary_varient.*, jwellary_images.image')
+                    ->from('jwellaries')
+                    ->where('jwellaries.id', $product_id)
+                    ->join('jwellary_varient', "jwellary_varient.varient_id = $varient_id")
+                    ->join('jwellary_images', 'jwellary_varient.varient_id = jwellary_images.varient')
+                    ->get()
+                    ->row_array();
+}
+
+
+public function getAddressDetails($address_id){
+    return $this->db->select('*')
+                    ->from('address')
+                    ->where('id', $address_id)
+                    ->get()
+                    ->row_array();
+}
+    
 
 	
 	
@@ -372,6 +394,16 @@ public function deleteVarient($data)
     $this->db->where('varient_id', $data['id']);
     $result = $this->db->update('jwellary_varient'); 
     return $result;
+}
+
+
+public function getUserDetails($id)
+{
+    $data = $this->db->select('users.*')
+                     ->from('users')
+                     ->where(['users.UserID'=>$id]);
+    return $data->get()->row_array();
+    
 }
 
 public function updatethumbnail($id,$thumbnail)

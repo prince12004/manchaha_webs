@@ -816,21 +816,102 @@ public function updateProductDetails() {
     {
         $this->load->view('Admin/returnorder');    
     }
-    public function returntracking($page = 1)
+    public function returntracking($type = 'new', $page = 1)
     {
-        $orders = $this->getShiprocketreturns($page);
-        foreach ($orders['data'] as &$product) {  
-            if (isset($product['products']) && is_array($product['products'])) {
-                foreach ($product['products'] as &$varient) {
-                    $varient['image'] = $this->AdminModel->getImage($varient['channel_sku']);
+        $category = $this->input->get('category'); // Get category from URL
+        $order = $this->input->get('order');
+        if ($type == 'new') {
+            $orders['data'] = $this->getnewreturns($category,$order); // Pass category filter
+            $this->load->view('Admin/new_returns', ['orders' => $orders]);
+        } else {
+            $orders = $this->getShiprocketreturns($page, $category); // Pass category filter
+    
+            foreach ($orders['data'] as &$product) {  
+                if (isset($product['products']) && is_array($product['products'])) {
+                    foreach ($product['products'] as &$variant) {
+                        $variant['image'] = $this->AdminModel->getImage($variant['channel_sku']);
+                    }
                 }
             }
+    
+            $this->load->view('Admin/returntracking', ['orders' => $orders]);
         }
-        //                 echo '<pre>';
-        // print_r($orders);
-        // exit;
-        $this->load->view('Admin/returntracking',['orders'=>$orders]);
     }
+    
+
+    public function accept_return()
+    {
+        $id = intval($this->input->post('return_id'));
+        $shipment_id = intval($this->input->post('shipment_id')); // Ensure ID is an integer
+        $status = intval($this->input->post('res'));
+        // print_r($id);
+        // exit;
+    
+        if ($id > 0) {
+
+            $this->createReturn($id, $status,$shipment_id);
+            
+            $this->db->set('is_approved', $status)
+                     ->where('order_id', $id)
+                     ->update('order_returns');
+    
+            return $this->db->affected_rows() > 0; // Return true if update is successful
+        }
+        
+        return false; // Return false if invalid ID
+    }
+
+
+        public function createReturn($id, $status, $shipment_id) {
+            $this->load->model('AdminModel');
+            $orderDetails = $this->AdminModel->getOrderDetails($shipment_id);
+            $userDetails = $this->AdminModel->getUserDetails($orderDetails['user_id']);
+            $productDetails = $this->AdminModel->getProductDetails($orderDetails['product_id'],$orderDetails['varient_id']);
+
+            $addressDetails = $this->AdminModel->getAddressDetails($orderDetails['address_id']);
+
+            $returnData = [
+                'orderDetails' => $orderDetails,
+                'userDetails' => $userDetails,
+                'productDetails' => $productDetails,
+                'addressDetails' => $addressDetails,
+                'status' => $status
+            ];
+            $this->returnShip($returnData);
+        }
+        
+    
+
+    public function getnewreturns($cat = null, $order = null)
+    {
+      
+        $this->db->select('order_returns.*, users.name AS user_name, orders.*, address.name AS address_name, jwellaries.jwellary_name, jwellaries.thumbnail')
+                 ->from('order_returns')
+                 ->where('order_returns.is_approved', 0)
+                 ->join('users', 'users.UserID = order_returns.user_id', 'left')
+                 ->join('orders', 'orders.order_id = order_returns.order_id', 'left')
+                 ->join('address', 'address.id = orders.address_id', 'left')
+                 ->join('jwellaries', 'jwellaries.id = orders.product_id', 'left');
+    
+        if (!empty($cat)) {
+            $this->db->group_start()
+                     ->where('jwellaries.category_id', $cat)
+                     ->or_where('jwellaries.subcategory_id', $cat)
+                     ->group_end();
+        }
+    
+        if (!empty($order)) {
+            $this->db->where('order_returns.return_type', (int) $order);
+                     
+        }
+    
+        return $this->db->get()->result_array();
+    }
+    
+    
+    
+    
+    
 
 
 
