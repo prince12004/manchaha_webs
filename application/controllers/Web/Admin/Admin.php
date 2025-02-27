@@ -6,8 +6,9 @@ class Admin extends Ship
 {
     public function __construct()
     {
-        parent:: __construct();
-		$this->load->model('AdminModel');
+        parent::__construct();
+        $this->load->model('AdminModel');
+        $this->load->database();
 
         if(!$this->session->userdata('adminLogin'))
         {
@@ -820,8 +821,12 @@ public function updateProductDetails() {
     {
         $category = $this->input->get('category'); // Get category from URL
         $order = $this->input->get('order');
+        $ret = $this->input->get('ret');
         if ($type == 'new') {
-            $orders['data'] = $this->getnewreturns($category,$order); // Pass category filter
+            $orders['data'] = $this->getnewreturns($category,$order,$ret); // Pass category filter
+            // echo'<pre>';
+            // print_r($orders);
+            // exit;
             $this->load->view('Admin/new_returns', ['orders' => $orders]);
         } else {
             $orders = $this->getShiprocketreturns($page, $category); // Pass category filter
@@ -849,45 +854,78 @@ public function updateProductDetails() {
     
         if ($id > 0) {
 
-            $this->createReturn($id, $status,$shipment_id);
+            $ret = $this->createReturn($id, $status,$shipment_id);
+            if ($ret) {
+                $this->db->set('is_approved', $status)
+                ->where('order_id', $id)
+                ->update('order_returns');
+
+                return $this->db->affected_rows() > 0; // Return true if update is successful
+            }else{
+                return false;
+            }
             
-            $this->db->set('is_approved', $status)
-                     ->where('order_id', $id)
-                     ->update('order_returns');
-    
-            return $this->db->affected_rows() > 0; // Return true if update is successful
         }
         
         return false; // Return false if invalid ID
     }
 
-
-        public function createReturn($id, $status, $shipment_id) {
-            $this->load->model('AdminModel');
-            $orderDetails = $this->AdminModel->getOrderDetails($shipment_id);
-            $userDetails = $this->AdminModel->getUserDetails($orderDetails['user_id']);
-            $productDetails = $this->AdminModel->getProductDetails($orderDetails['product_id'],$orderDetails['varient_id']);
-
-            $addressDetails = $this->AdminModel->getAddressDetails($orderDetails['address_id']);
-
-            $returnData = [
-                'orderDetails' => $orderDetails,
-                'userDetails' => $userDetails,
-                'productDetails' => $productDetails,
-                'addressDetails' => $addressDetails,
-                'status' => $status
-            ];
-            $this->returnShip($returnData);
+    public function createReturn($id, $status, $shipment_id) {
+        $this->load->model('AdminModel');
+    
+        // Fetch order details
+        $orderDetails = $this->AdminModel->getOrderDetails($shipment_id);
+        if (!$orderDetails) {
+            return false; // Return false if order details are missing
         }
+    
+        $userDetails = $this->AdminModel->getUserDetails($orderDetails['user_id']);
+        $productDetails = $this->AdminModel->getProductDetails($orderDetails['product_id'], $orderDetails['varient_id']);
+        $addressDetails = $this->AdminModel->getAddressDetails($orderDetails['address_id']);
+    
+        $returnData = [
+            'orderDetails'   => $orderDetails,
+            'userDetails'    => $userDetails,
+            'productDetails' => $productDetails,
+            'addressDetails' => $addressDetails,
+            'status'         => $status
+        ];
+    
+        // Process return with external API
+        $returnRes = $this->returnShip($returnData);
+    
+        if ($returnRes) {
+            // Prepare data for database update
+            $newdata = [
+                'return_order_id'   => $returnRes['order_id'],
+                'channel_order_id'  => $returnRes['channel_order_id'],
+                'shipment_id'       => $shipment_id,
+                'company_name'      => $returnRes['company_name'],
+                'status_code'       => $returnRes['status_code'],
+                'status_message'    => $returnRes['status'],
+                'is_approved'       => $status
+            ];
+    
+            // Update order_returns table
+            $this->db->where('order_id', $id)
+                     ->update('order_returns', $newdata);
+    
+            $this->session->set_flashdata('message', 'Return request created successfully.');
+            return true;
+        }
+    
+        return false; // If returnShip() fails, return false
+    }
+    
         
     
 
-    public function getnewreturns($cat = null, $order = null)
+    public function getnewreturns($cat = null, $order = null, $ret = null)
     {
       
         $this->db->select('order_returns.*, users.name AS user_name, orders.*, address.name AS address_name, jwellaries.jwellary_name, jwellaries.thumbnail')
                  ->from('order_returns')
-                 ->where('order_returns.is_approved', 0)
+                 ->where('order_returns.is_approved', $ret)
                  ->join('users', 'users.UserID = order_returns.user_id', 'left')
                  ->join('orders', 'orders.order_id = order_returns.order_id', 'left')
                  ->join('address', 'address.id = orders.address_id', 'left')
@@ -906,6 +944,22 @@ public function updateProductDetails() {
         }
     
         return $this->db->get()->result_array();
+    }
+
+
+    public function viewdetails($order_id)
+    {
+        $this->load->model('AdminModel');
+        $order = $this->AdminModel->getReturnDetails($order_id);
+        $status = $this->trackorder($order_id);
+        $details = [
+            'order'=>$order,
+            'status'=>$status
+        ];
+        echo'<pre>';
+        print_r($details);
+        exit;
+        $this->load->view('Admin/orderdetails',['data'=>$details]);
     }
     
     

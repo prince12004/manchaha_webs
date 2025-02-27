@@ -168,13 +168,28 @@ public function getOrderDetails($shipment_id)
 }
 
 
+public function getReturnDetails($order_id)
+{
+    return $this->db->select('order_returns.*,orders.address_id,orders.product_id,orders.varient_id, users.*, address.*,jwellary_varient.weight,jwellary_varient.varient_sku') // Select all columns from relevant tables
+                    ->from('order_returns') // Main table
+                    ->where('order_returns.order_id', $order_id) // Filter by order ID
+                    ->join('orders', 'orders.order_id = order_returns.order_id') // Join orders table
+                    ->join('address', 'address.id = orders.address_id') // Join address table
+                    ->join('users', 'users.UserID = order_returns.user_id') // Join users table
+                    ->join('jwellary_varient','jwellary_varient.varient_id = orders.varient_id')
+                    ->get()
+                    ->row_array(); // Fetch as an associative array
+    
+}
+
 public function getProductDetails($product_id, $varient_id)
 {
-    return $this->db->select('jwellaries.*, jwellary_varient.*, jwellary_images.image')
+    return $this->db->select('jwellaries.*, jwellary_varient.*, jwellary_images.image,categories.CategoryName')
                     ->from('jwellaries')
                     ->where('jwellaries.id', $product_id)
                     ->join('jwellary_varient', "jwellary_varient.varient_id = $varient_id")
                     ->join('jwellary_images', 'jwellary_varient.varient_id = jwellary_images.varient')
+                    ->join('categories', 'jwellaries.category_id = categories.CategoryID')
                     ->get()
                     ->row_array();
 }

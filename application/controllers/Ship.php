@@ -689,9 +689,10 @@ public function addProductToShip($productData,$variantData,$imagePaths)
 }
 
 
-public function returnShip($data){
+public function returnShip($data)
+{
     $returndata = $this->prepareReturnData($data);
-    $api_url = 'https://apiv2.shiprocket.in/v1/external/orders/return/create';
+    $api_url = 'https://apiv2.shiprocket.in/v1/external/orders/create/return'; // Corrected endpoint
     $api_key = $this->getAuthToken(); 
     $ch = curl_init($api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -708,17 +709,65 @@ public function returnShip($data){
     }
     curl_close($ch);
     $response_data = json_decode($response, true);
+
+    // Check for HTTP status code
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if ($http_code != 200) {
+        return [
+            'status' => 'error',
+            'message' => $response_data['message'] ?? 'Unknown error',
+            'status_code' => $http_code
+        ];
+    }
+
     return $response_data;
-    
 }
 
 public function prepareReturnData($data)
 {
-    
-    
+    //list($length, $breadth, $height) = explode('X', $data['productDetails']['dimension']);
+
+    $returnData = [
+        'order_id' => $data['orderDetails']['order_id'],
+        'order_date' => $data['orderDetails']['order_date'],
+        'pickup_customer_name' => $data['addressDetails']['name'],
+        'pickup_address' => $data['addressDetails']['apartment'].$data['addressDetails']['streetAddress'],
+        'pickup_city' => $data['addressDetails']['city'],
+        'pickup_state' => $data['addressDetails']['state'],
+        'pickup_country' => 'India',
+        'pickup_pincode' => $data['addressDetails']['pincode'],
+        'pickup_email' => $data['addressDetails']['email'],
+        'pickup_phone' => $data['addressDetails']['phone'],
+        'shipping_customer_name' => 'MNNCHAHA ECOMMERCE PVT LTD',
+        'shipping_address' => 'MNNCHAHA ECOMMERCE PVT LTD B 104,Shri Balaji Apartment,Chandansar Road,Virar East 401305',
+        'shipping_city' => 'Virar',
+        'shipping_country' => 'India',
+        'shipping_pincode' => '401305',
+        'shipping_state' => 'Maharashtra',
+        'shipping_email' => 'Mnnchahaecommerce@gmail.com',
+        'shipping_phone' => '8104205852',
+        'shipping_isd_code' => '91',
+        'billing_isd_code' => '91',
+        'order_items' => [
+            [
+                'name' => $data['productDetails']['jwellary_name'],
+                'sku' => $data['productDetails']['varient_sku'],
+                'units' => $data['orderDetails']['quantity'],
+                'selling_price' => $data['productDetails']['sale_price'],
+                'discount' => isset($data['orderDetails']['discount'])? $data['orderDetails']['discount'] : 0,
+                'hsn' => $data['productDetails']['hsn'],
+            ]
+        ],
+        'payment_method' => $data['orderDetails']['payment_type'],
+        'total_discount' => isset($data['orderDetails']['discount'])? $data['orderDetails']['discount'] : 0,
+        'sub_total' => ($data['productDetails']['sale_price']+(($data['productDetails']['sale_price']*$data['productDetails']['applicable_tax'])/100))*$data['orderDetails']['quantity'],
+        'length' => 6,
+        'breadth' => 2,
+        'height' => 8,
+        'weight' => $data['orderDetails']['weight']/1000,
+    ];
+    return $returnData;
 }
-
-
 
     
     
