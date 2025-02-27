@@ -271,7 +271,7 @@ input[type="number"]::-webkit-inner-spin-button {
                     </div>
                     <div class="col-md-6">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" name="vendor_phone" oninput="checkPhone(this.value)" value="<?= set_value('vendor_phone')?>"
+                        <input type="number" name="vendor_phone" oninput="checkPhone(this.value)" value="<?= set_value('vendor_phone')?>"
                             class="form-control numbers-only phone" id="phoneNumber" placeholder="Enter your number"
                             required>
                         <small class="error-message phoneError"></small>

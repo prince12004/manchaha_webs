@@ -102,17 +102,16 @@
                     <table id="Order-History-return" class="table hover returns">
                         <thead>
                             <tr>
-                                <!-- <th>S.No.</th> -->
+                                <th>S.No.</th>
                                 <th> User Name</th>
                                 <th>Product Details</th>
                                 <th>Suborder ID</th>
                                 <th>Payment Status</th>
                                 <th>Return Fee</th>
                                 <th>Order Date</th>
-                                <th>Return Reason</th>
-                                <th>Comment</th>
                                 
-                                <th>Action</th>
+                              
+                                <th style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,10 +122,11 @@
                                 
                                 ?> -->
                             <tr>
+                                <td>01</td>
                                 <td><?= ucwords($order['address_name'])?></td>
                                 <td style="white-space: normal;">
                                     <div class="products1"
-                                        style="display: flex; width: 350px; text-align: left; gap: 8px ">
+                                        style="display: flex; width: 250px; text-align: left; gap: 8px; align-items: center;">
                                         <img src="<?= base_url('uploads/products/').$order['thumbnail'] ?>" alt="View" width="45px"
                                             class="vieews">
                                         <p style="margin-bottom: 0px"><?= strlen($order['jwellary_name']) > 40 ? substr($order['jwellary_name'], 0, 40) . '...' : $order['jwellary_name']; ?>
@@ -152,7 +152,7 @@
                                
                                 <td>
                                     <div class="status-buttons">
-                                        <div style="display: flex; flex-direction:column; ">
+                                        <div style="display: flex; flex-direction: row; gap: 10px; ">
                                         <button class="accepts" onclick="accept_return('<?= $order['order_id']?>',1 , '<?= $order['shipment_id']?>')">
                                             Accept
                                         </button>
