@@ -27,7 +27,12 @@
 
     <div class="ship-filter return-filter">
         <div class="return-tabs">
-            <a href="#">
+        <a href="<?= base_url('returntracking/new')?>">
+                <div class="redirect-tab">
+                    <h4>New Returns</h4>
+                </div>
+            </a>
+            <a href="<?= base_url('returntracking/pending')?>">
                 <div class="redirect-tab">
                     <h4>In Transit</h4>
                 </div>
@@ -52,6 +57,12 @@
                     <h4>Disposed</h4>
                 </div>
             </a>
+            <a href="<?= base_url('returntracking/new/?ret=2')?>">
+                <div class="redirect-tab">
+                    <h4>Disapproved</h4>
+                </div>
+            </a>
+
         </div>
         <div class="filters-by">
             <div class="mains-filt">
@@ -98,13 +109,24 @@
                                 <th>Payment Status</th>
                                 <th>Return Fee</th>
                                 <th>Order Date</th>
+                                <th>Return Reason</th>
+                                <th>Comment</th>
                                 
+<<<<<<< HEAD
                               
                                 <th style="text-align: center;">Action</th>
+=======
+                                <th>Action</th>
+>>>>>>> ed077c1155395fba91c55f868ef3c3c6c2e52ea1
                             </tr>
                         </thead>
                         <tbody>
                         <?php foreach ($orders['data'] as $order) {?>
+                            <!-- <?php 
+                                echo '<pre>';
+                                print_r($order);
+                                
+                                ?> -->
                             <tr>
                                 <td>01</td>
                                 <td><?= ucwords($order['address_name'])?></td>
@@ -131,6 +153,8 @@
                                         </p>
                                     </div>
                                 </td>
+                                <td><?= $order['return_reason']?></td>
+                                <td><?= ucwords($order['comment'])?></td>
                                
                                 <td>
                                     <div class="status-buttons">
@@ -141,7 +165,7 @@
                                         <button class="accepts" onclick="accept_return('<?= $order['order_id']?>',2 , '<?= $order['shipment_id']?>')">
                                             Decline
                                         </button>
-                                        <button class="accepts" onclick="viewdetails('<?= isset($order['shipments']['awb'])?>')">
+                                        <button class="accepts" onclick="viewdetails('<?= $order['order_id']?>')">
                                             View Details
                                         </button>
                                         </div>
@@ -179,9 +203,9 @@ $(document).ready(function() {
 });
 
 
-function viewdetails(awb)
+function viewdetails(order)
 {
-    window.location.href = '<?= base_url('viewdetails')?>'+awb;
+    window.location.href = '<?= base_url('viewdetails/')?>'+order;
 }
 
 function filterbycat(id){
@@ -206,51 +230,51 @@ function accept_return(id,res,shipment_id)
 
 </script>
 <script>
-$(document).ready(function () {
+//$(document).ready(function () {
     // Function to set active tab based on path or localStorage
-    function setActiveTabByPath(path) {
-        let activeTab = localStorage.getItem('activeTab'); // Get the stored active tab
+    // function setActiveTabByPath(path) {
+    //     let activeTab = localStorage.getItem('activeTab'); // Get the stored active tab
 
-        // If there's no active tab stored, set the "In Transit" tab as active by default
-        if (!activeTab) {
-            activeTab = $('.return-tabs a').eq(0).attr('href'); // Get the href of the first tab (In Transit)
-            localStorage.setItem('activeTab', activeTab); // Store the "In Transit" tab as active
-        }
+    //     // If there's no active tab stored, set the "In Transit" tab as active by default
+    //     if (!activeTab) {
+    //         activeTab = $('.return-tabs a').eq(0).attr('href'); // Get the href of the first tab (In Transit)
+    //         localStorage.setItem('activeTab', activeTab); // Store the "In Transit" tab as active
+    //     }
 
-        // Loop through each redirect-tab and set active class on <h4>
-        $('.return-tabs a').each(function () {
-            const $tab = $(this);
-            const hrefPath = $tab.attr('href');
+    //     // Loop through each redirect-tab and set active class on <h4>
+    //     $('.return-tabs a').each(function () {
+    //         const $tab = $(this);
+    //         const hrefPath = $tab.attr('href');
 
-            // If the current URL matches the href or it's the stored active tab, mark it as active
-            if (path.includes(hrefPath) || hrefPath === activeTab) {
-                $('.return-tabs a').find('h4').removeClass('active-tab'); // Remove active from all <h4>
-                $tab.find('h4').addClass('active-tab'); // Add active to the current <h4>
-            }
-        });
-    }
+    //         // If the current URL matches the href or it's the stored active tab, mark it as active
+    //         if (path.includes(hrefPath) || hrefPath === activeTab) {
+    //             $('.return-tabs a').find('h4').removeClass('active-tab'); // Remove active from all <h4>
+    //             $tab.find('h4').addClass('active-tab'); // Add active to the current <h4>
+    //         }
+    //     });
+    // }
 
     // Get the current page's URL path
-    const currentPath = window.location.pathname;
+//     const currentPath = window.location.pathname;
 
-    // Always clear the localStorage on page load to match the correct path
-    localStorage.removeItem('activeTab');
+//     // Always clear the localStorage on page load to match the correct path
+//     localStorage.removeItem('activeTab');
 
-    // Set active state based on current path (matches the correct page after redirect)
-    setActiveTabByPath(currentPath);
+//     // Set active state based on current path (matches the correct page after redirect)
+//     setActiveTabByPath(currentPath);
 
-    // When a tab is clicked, update localStorage with the new active link
-    $('.return-tabs a').on('click', function (event) {
-        event.preventDefault(); // Prevent default action to ensure we handle state
+//     // When a tab is clicked, update localStorage with the new active link
+//     $('.return-tabs a').on('click', function (event) {
+//         event.preventDefault(); // Prevent default action to ensure we handle state
 
-        const href = $(this).attr('href');
-        localStorage.setItem('activeTab', href);
+//         const href = $(this).attr('href');
+//         localStorage.setItem('activeTab', href);
 
-        // Update active class on <h4> inside clicked tab
-        $('.return-tabs a').find('h4').removeClass('active-tab');
-        $(this).find('h4').addClass('active-tab');
-    });
-});
+//         // Update active class on <h4> inside clicked tab
+//         $('.return-tabs a').find('h4').removeClass('active-tab');
+//         $(this).find('h4').addClass('active-tab');
+//     });
+// });
 
 
 </script>

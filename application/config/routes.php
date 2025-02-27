@@ -178,6 +178,7 @@ $route['accept-return'] = 'Web/Admin/Admin/accept_return';
 $route['viewdetails'] = 'Web/Admin/Admin/viewdetails';
 
 $route['replace-order'] = 'Web/User/User/replace';
+$route['viewdetails/(:any)'] = 'Web/Admin/Admin/viewdetails/$1';
 
 $route['add-review'] = 'Web/User/User/addReview';
 $route['review-page'] = 'Web/User/User/reviewPage';
