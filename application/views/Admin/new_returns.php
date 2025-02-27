@@ -115,12 +115,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($orders['data'] as $order) {?>
-                            <!-- <?php 
-                                echo '<pre>';
-                                print_r($order);
-                                
-                                ?> -->
+                        <?php foreach ($orders['data'] as $index => $order) {?>
+    
                             <tr>
                                 <td>01</td>
                                 <td><?= ucwords($order['address_name'])?></td>
