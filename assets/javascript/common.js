@@ -1,4 +1,8 @@
 
+
+
+
+
 function vendorStatus(status, id) {
     if (!confirm("Are you sure you want to change the vendor status?")) {
         return;

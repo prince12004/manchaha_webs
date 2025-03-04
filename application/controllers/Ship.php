@@ -174,6 +174,9 @@ class Ship extends CI_Controller
     }
 
 
+    
+
+
     public function trackingdata($order)
     {
         $url = "https://apiv2.shiprocket.in/v1/external/courier/track?order_id={$order}";
@@ -707,11 +710,11 @@ public function returnShip($data)
         echo 'Error:' . curl_error($ch);
         return false;
     }
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     $response_data = json_decode($response, true);
 
     // Check for HTTP status code
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     if ($http_code != 200) {
         return [
             'status' => 'error',

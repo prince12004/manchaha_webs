@@ -109,6 +109,9 @@
                                 <th>Payment Status</th>
                                 <th>Return Fee</th>
                                 <th>Order Date</th>
+                                <th>Return Type</th>
+                                <th>Return Reason</th>
+                                <th>Comment</th>
                                 
                               
                                 <th style="text-align: center;">Action</th>
@@ -143,8 +146,16 @@
                                         </p>
                                     </div>
                                 </td>
+                                <?php
+                                if ($order['return_type'] == 1) {   
+                                    $returntype = 'Return';
+                                }else{
+                                    $returntype = 'Exchange';
+                                }
+                                ?>
+                                <td><?= $returntype?></td>
                                 <td><?= $order['return_reason']?></td>
-                                <td><?= ucwords($order['comment'])?></td>
+                                <td><?= ucfirst($order['comment'])?></td>
                                
                                 <td>
                                     <div class="status-buttons">

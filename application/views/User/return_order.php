@@ -201,82 +201,102 @@
 
 <section class="new-return">
     <div class="mains-section">
-        <form id="returnForm">
-        <div class="rertuns">
-            <label for="return-reason">Reason for Return</label>
-            <select name="returnreason" id="return-reason" required onchange="showImageInput()">
-                <option value="">Select a reason</option>
-                <option value="Damaged">Damaged Item</option>
-                <option value="Wrong Size">Wrong Size</option>
-                <option value="Defective">Defective Product</option>
-                <option value="Other">Other</option>
-            </select>
+    <form id="returnForm">
+    <div class="rertuns">
+        <label for="return-reason">Reason for Return</label>
+        <select name="return_reason" id="return-reason" required onchange="showImageInput()">
+            <option value="">Select a reason</option>
+            <option value="Damaged">Damaged Item</option>
+            <option value="Wrong Size">Wrong Size</option>
+            <option value="Defective">Defective Product</option>
+            <option value="Other">Other</option>
+        </select>
 
-            <label for="comments">Comments <span>*</span> </label>
-            <input type="text" name="comment" id="comments" placeholder="Enter your comment" required>
+        <label for="comments">Comments <span>*</span> </label>
+        <input type="text" name="comment" id="comments" placeholder="Enter your comment" required>
 
-            <div id="image-container" style="display: none;">
-                <label for="image-upload" class="upload-btn">
-                    <i class="fa fa-upload"></i> Upload Image
-                </label>
-                <input type="file" name="returnimage" id="image-upload" accept="image/*" onchange="previewImage()" required>
-            </div>
-
-            <div id="preview-container" class="preview-container">
-                <!-- Image previews will appear here -->
-            </div>
-
-            <button class="submit-btn" type="button" onclick="submitreturn()">Submit Return Request</button>
+        <div id="image-container" style="display: none;">
+            <label for="image-upload" class="upload-btn">
+                <i class="fa fa-upload"></i> Upload Image
+            </label>
+            <input type="file" multiple name="returnimage[]" id="image-upload" accept="image/*" onchange="previewImage()">
         </div>
-        </form>
+
+        <div id="preview-container" class="preview-container">
+            <!-- Image previews will appear here -->
+        </div>
+
+        <button class="submit-btn" type="button" onclick="submitreturn()">Submit Return Request</button>
+    </div>
+</form>
     </div>
 </section>
 
 <script>
-    // Function to show the image input when a reason is selected
     function showImageInput() {
-        const reason = document.getElementById('return-reason').value;
-        const imageContainer = document.getElementById('image-container');
+        var reason = document.getElementById('return-reason').value;
+        var imageContainer = document.getElementById('image-container');
+        var imageInput = document.getElementById('image-upload');
 
-        // Only show the image upload input if reason is 'Damaged', 'Defective', or 'Other'
-        if (reason === 'Damaged' || reason === 'Defective' || reason === 'Other') {
+        if (reason === 'Damaged' || reason === 'Defective') {
             imageContainer.style.display = 'block';
+            imageInput.required = true;
         } else {
             imageContainer.style.display = 'none';
-            document.getElementById('preview-container').innerHTML = ''; // Clear previews
+            imageInput.required = false;
         }
     }
 
-   // Function to preview the uploaded image
-function previewImage() {
-    const fileInput = document.getElementById('image-upload');
-    const previewContainer = document.getElementById('preview-container');
-    const file = fileInput.files[0];
+    function previewImage() {
+        var previewContainer = document.getElementById('preview-container');
+        previewContainer.innerHTML = ''; // Clear previous previews
 
-    if (file) {
-        // // Check file size (100KB)
-        // if (file.size > 100 * 1024) { 
-        //     showAlert('The file size is too large. Please upload an image less than 100KB.');
-        //     return;
-        // }
+        var files = document.getElementById('image-upload').files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var reader = new FileReader();
 
-        if (previewContainer.children.length >= 2) {
-            showAlert('You can upload a maximum of 2 images.');
-            return;
+            reader.onload = function (e) {
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.classList.add('preview-img');
+
+                var removeBtn = document.createElement('span');
+                removeBtn.innerHTML = '&times;';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.onclick = function () {
+                    img.remove();
+                    removeBtn.remove();
+                };
+
+                var div = document.createElement('div');
+                div.classList.add('preview-item');
+                div.appendChild(img);
+                div.appendChild(removeBtn);
+                previewContainer.appendChild(div);
+            };
+
+            reader.readAsDataURL(file);
         }
-
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-            const img = document.createElement('img');
-            img.src = event.target.result;
-            img.classList.add('preview-img');
-            previewContainer.appendChild(img);
-        };
-
-        reader.readAsDataURL(file);
     }
-}
+
+    function submitreturn() {
+        var formData = new FormData(document.getElementById('returnForm'));
+
+        fetch('submitreturn', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                document.getElementById('returnForm').reset();
+                document.getElementById('preview-container').innerHTML = '';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
 
     // Function to show a modal with a custom alert message
@@ -292,34 +312,5 @@ function previewImage() {
 
     // Function to submit the form, ensuring all required fields are filled
 
-function submitreturn() {
-    const reason = document.getElementById('return-reason').value;
-    const comments = document.getElementById('comments').value;
-    const imageInput = document.getElementById('image-upload');
-    
-    if (!reason || !comments) {
-        showAlert('Please fill in all required fields.');
-        return;
-    }
 
-    let formData = new FormData();
-    formData.append("return_reason", reason);
-    formData.append("comment", comments);
-    if (imageInput.files.length > 0) {
-        formData.append("returnimage", imageInput.files[0]);
-    }
-    $.ajax({
-        url: '<?= base_url('submitreturn')?>', 
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-            showAlert('Return request submitted successfully!');
-        },
-        error: function(xhr, status, error) {
-            showAlert('Error submitting return request. Try again.');
-        }
-    });
-}
 </script>

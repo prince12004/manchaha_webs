@@ -215,7 +215,7 @@
                 <label for="image-upload" class="upload-btn">
                     <i class="fa fa-upload"></i> Upload Image
                 </label>
-                <input type="file" id="image-upload" accept="image/*" onchange="previewImage()" required>
+                <input type="file" multiple id="image-upload" accept="image/*" onchange="previewImage()" required>
             </div>
 
             <div id="preview-container" class="preview-container">
@@ -246,7 +246,7 @@
 function previewImage() {
     const fileInput = document.getElementById('image-upload');
     const previewContainer = document.getElementById('preview-container');
-    const file = fileInput.files[0];
+    const file = fileInput.files[1];
 
     if (file) {
         // // Check file size (100KB)

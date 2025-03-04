@@ -825,7 +825,7 @@ public function updateProductDetails() {
         if ($type == 'new') {
             $orders['data'] = $this->getnewreturns($category,$order,$ret); // Pass category filter
             // echo'<pre>';
-            // print_r($orders);
+            // print_r($category);
             // exit;
             $this->load->view('Admin/new_returns', ['orders' => $orders]);
         } else {
@@ -951,15 +951,15 @@ public function updateProductDetails() {
     {
         $this->load->model('AdminModel');
         $order = $this->AdminModel->getReturnDetails($order_id);
-        $status = $this->trackorder($order_id);
+        $status = $this->trackShipment($order['shipment_id']);
         $details = [
             'order'=>$order,
             'status'=>$status
         ];
-        echo'<pre>';
-        print_r($details);
-        exit;
-        $this->load->view('Admin/orderdetails',['data'=>$details]);
+        // echo'<pre>';
+        // print_r($details);
+        // exit;
+        $this->load->view('Admin/viewdetails',['data'=>$details]);
     }
     
     
@@ -976,7 +976,5 @@ public function updateProductDetails() {
         echo json_encode(['status'=>'success','message'=>'Image Deleted SuccessFully']);
     }
 
-    public function viewdetails(){
-        $this->load->view('Admin/viewdetails');
-    }
+
 }

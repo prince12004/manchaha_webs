@@ -841,6 +841,8 @@ public function allreview($id)
     $this->load->view('User/allreview', ['reviews' => $response]);
     $this->load->view('User/footer');
 }
-
-
+public function GoogleLogin()
+{
+    $this->load->view('login_view');
+}
 }

@@ -9,28 +9,36 @@
     </div>
 
     <div class="row g-3">
+        
         <div class="order-container">
 
             <div class="order-details">
                 <div class="orders-new">
                     <div class="order-details-new">
                         <label><strong>User Name:</strong></label>
-                        <p>John Doe</p>
+                        <p><?= ucwords($data['order']['name']) ?></p>
                     </div>
 
                     <div class="order-details-new">
                         <label><strong>Order Date:</strong></label>
-                        <p>2025-02-15</p>
+                        <p>
+                        <?php 
+                            $formatted_date = date("d M Y", strtotime($data['order']['order_date']));
+                            echo $formatted_date;
+                            ?> 
+                        </p>
                     </div>
 
                     <div class="order-details-new">
                         <label><strong>Delivery Date:</strong></label>
-                        <p>2025-02-18</p>
+                        <p>
+                        Not Delivered 
+                        </p>
                     </div>
                     <div class="order-details-new">
                         <label><strong>Bill</strong></label>
                         <span>
-                            <button>Download Bill</button>
+                            <button type="button" onclick="downloadInvoice('<?= $data['order']['order_id'] ?>')" >Download Bill</button>
                         </span>
                     </div>
                 </div>
@@ -38,18 +46,27 @@
                 <div class="orders-new">
                     <div class="order-details-new pro-description">
                         <label><strong>Product Description:</strong></label>
-                        <p>Wireless Bluetooth Headphones</p>
+                        <p>
+                            <?= $data['order']['jwellary_description'] ?>
+                        </p>
                     </div>
                 </div>
 
                 <div class="orders-new">
                     <div class="order-details-new">
                         <label><strong>Return Date:</strong></label>
-                        <p>2025-02-25</p>
+                        <p>
+                        <?php 
+                            $formatted_date = date("d M Y", strtotime($data['order']['return_date']));
+                            echo $formatted_date;
+                            ?> 
+                        </p>
                     </div>
                     <div class="order-details-new">
                         <label><strong>Return Reason:</strong></label>
-                        <p>Product Defective</p>
+                        <p>
+                            <?= $data['order']['return_reason'] ?>
+                        </p>
                     </div>
                     <div class="order-details-new">
                         <label><strong>Uploaded Image:</strong></label>
@@ -62,15 +79,24 @@
 
                 <div>
                     <label><strong>Comments:</strong></label>
-                    <p>Received with damaged ear pads, need a replacement.</p>
+                    <p><?= ucfirst($data['order']['comment']) ?></p>
                 </div>
             </div>
-
+    <?php if($data['order']['is_approved'] == 1){ ?>
             <div class="admin-buttons">
-                <button class="approve-btn">Approve Return</button>
-                <button class="reject-btn">Reject Return</button>
+                <button type="button" class="approve-btn">Approved</button>
             </div>
-
+<?php }elseif ($data['order']['is_approved'] == 2) {?>
+    <div class="admin-buttons">
+    <button type="button" class="reject-btn">Rejected</button>
+    </div>
+<?php }else{?>
+    <div class="admin-buttons">
+                    <button type="button" onclick="accept_return('<?= $data['order']['order_id']?>',1 , '<?= $data['order']['order_ship']?>')" class="approve-btn">Approve Return</button>
+                <button type="button" onclick="accept_return('<?= $data['order']['order_id']?>',2 , '<?= $data['order']['order_ship']?>')" class="reject-btn">Reject Return</button>
+                </div>
+<?php }?>
+<?php if(($data['status']['tracking_data']['shipment_track_activities'])&&($data['status']['tracking_data']['shipment_track_activities']!='')){ ?>
             <div class="mains-status">
                 <h3>Return Status</h3>
                 <div class="tracking-status">
@@ -120,6 +146,8 @@
                     </div>
                 </div>
             </div>
+
+            <?php }?>
         </div>
     </div>
 </div>
@@ -377,4 +405,58 @@
             statuses[3].classList.add('completed', 'active');
         }, 4000);
     });
+
+
+
+    // Approve Return
+    function accept_return(id,res,shipment_id)
+{
+    console.log(id);
+    $.ajax({
+        url: "<?= base_url('accept-return') ?>",
+        type: "POST",
+        data: { return_id: id,res:res,shipment_id:shipment_id},
+        success: function(response) {
+        // window.location.reload();
+        }
+    });
+}
+
+
+
+function downloadInvoice(shipmentID) {
+    // Check if the shipmentID is valid
+    if (!shipmentID) {
+        alert('Invalid shipment ID. Please provide a valid shipment ID.');
+        return;
+    }
+    const ids = [shipmentID];
+    $.ajax({
+        url: '<?= base_url('generateInvoice') ?>',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(ids),
+        success: function(response) {
+
+            try {
+                const res = typeof response === 'string' ? JSON.parse(response) : response;
+
+                if (res.is_invoice_created === true) {
+                    window.location.href = res.invoice_url;
+                } else {
+                    alert(res.message || 'Something went wrong. Please try again.');
+                }
+				
+            } catch (e) {
+                console.error('Response Parsing Error:', e);
+                alert('Invalid response from the server. Please contact support.');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Request Error:', error);
+            alert('Failed to download Invoice. Please try again.');
+        }
+    });
+	//window.location.reload();
+}
 </script>

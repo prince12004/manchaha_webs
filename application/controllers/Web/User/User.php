@@ -1002,39 +1002,92 @@ public function saveReview()
     }
 }
 
-public function return()
-{
-    $this->load->view('User/header');
-    $this->load->view('User/return_order');
-    $this->load->view('User/footer');
-}
+    public function return()
+    {
+        $this->load->view('User/header');
+        $this->load->view('User/return_order');
+        $this->load->view('User/footer');
+    }
+    public function submitreturn() {
+        $returndata = $this->input->post();
 
-
-public function submitreturn() {
-    $this->load->library('upload');
-    $returndata = $this->input->post();
-    if (!empty($_FILES['returnimage']['name'])) {
-        $config['upload_path']   = './uploads/returns'; 
-        $config['allowed_types'] = 'jpg|jpeg|png|gif';
-        $config['max_size']      = 2048; 
-        $config['file_name']     = time() . '_' . rand(1111,9999); 
-
-        $this->upload->initialize($config);
-
-        if ($this->upload->do_upload('returnimage')) {
-            $uploadData = $this->upload->data();
-            $returndata['image'] = $uploadData['file_name'];
-        } else {
-            echo json_encode(['status' => 'error', 'message' => $this->upload->display_errors()]);
+        // Ensure session data exists
+        if (!$this->session->userdata('return_order_id') || !$this->session->userdata('return_user_id')) {
+            echo json_encode(['status' => 'error', 'message' => 'Session expired, please try again.']);
             return;
         }
+
+        // Prepare return data
+        $returnd = [
+            'order_id'      => $this->session->userdata('return_order_id'),
+            'user_id'       => $this->session->userdata('return_user_id'),
+            'return_type'   => 1, // Assuming 1 means product return
+            'return_reason' => $returndata['return_reason'],
+            'comment'       => $returndata['comment'],
+            'created_at'    => date('Y-m-d H:i:s'),
+        ];
+
+        // Insert return request into 'order_returns' table
+        $this->db->insert('order_returns', $returnd);
+        $return_id = $this->db->insert_id();
+
+        if (!$return_id) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to submit return request']);
+            return;
+        }
+
+        // Handle multiple image uploads
+        if (!empty($_FILES['returnimage']['name'][0])) {
+            $uploadPath = './uploads/returns/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+
+            $uploadedFiles = [];
+            $errors = [];
+
+            foreach ($_FILES['returnimage']['name'] as $key => $name) {
+                $_FILES['file']['name'] = $_FILES['returnimage']['name'][$key];
+                $_FILES['file']['type'] = $_FILES['returnimage']['type'][$key];
+                $_FILES['file']['tmp_name'] = $_FILES['returnimage']['tmp_name'][$key];
+                $_FILES['file']['error'] = $_FILES['returnimage']['error'][$key];
+                $_FILES['file']['size'] = $_FILES['returnimage']['size'][$key];
+
+                $config['upload_path']   = $uploadPath;
+                $config['allowed_types'] = 'jpg|jpeg|png|gif';
+                $config['file_name']     = time() . '_' . rand(11111, 99999);
+
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('file')) {
+                    $image_url = $this->upload->data('file_name');
+
+                    // Save image info to 'return_images' table
+                    $image_data = [
+                        'return_id' => $return_id,
+                        'image' => $image_url,
+                    ];
+                    $this->db->insert('return_images', $image_data);
+                    $uploadedFiles[] = base_url('uploads/returns/' . $image_url);
+                } else {
+                    $errors[] = $this->upload->display_errors();
+                }
+            }
+
+            if (!empty($errors)) {
+                echo json_encode(['status' => 'error', 'message' => implode(', ', $errors)]);
+                return;
+            }
+        }
+
+        echo json_encode([
+            'status'  => 'success',
+            'message' => 'Return request submitted successfully!',
+            'return_id' => $return_id
+        ]);
     }
-    $returndata['order_id'] = $this->session->userdata('return_order_id');
-    $returndata['user_id'] = $this->session->userdata('return_user_id');
-    $returndata['return_type'] = 1;
-    $this->db->insert('order_returns', $returndata);
-    echo json_encode(['status' => 'success', 'message' => 'Return request submitted!', 'data' => $returndata]);
-}
+    
+    
 
 public function replace(){
     $this->load->view('User/header');
