@@ -182,10 +182,14 @@
                             onclick="cancelOrder('<?= $orderData['order_id']?>')">Cancel Order</button>
 
                         <?php } ?>
+                       
                     </td>
+                   
 					</div>
                 </tr>
                 <?php }?>
+                <button type="button" class="btn btn-danger"
+                onclick="opencancelOrder()">Cancel Order</button>
             </tbody>
         </table>
     </div>
@@ -193,6 +197,20 @@
 
 
 
+
+<!-- Modal -->
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-logo">
+            <img src="<?= base_url('/assets/images/images/header-new-logo.png') ?>" alt="Logo">
+        </div>
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <p>Your order has been successfully cancelled. If applicable, please note that the payment will be refunded to your account within 4-5 business days.</p>
+        <div class="modal-buttons">
+            <button class="btn btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+</div>
 
 
 
@@ -273,6 +291,77 @@ function cancelOrder(orderid) {
     document.getElementById("orderSearch").addEventListener("keyup", searchOrders);
 </script>
 
+<style>
+    /* Modal Background */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2000000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Black with transparency */
+}
+.modal-logo img{
+    width: 150px;
+}
+/* Modal Content */
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 60%;
+    max-width: 500px;
+    text-align: center;
+}
+.modal-content p{
+    font-size: 16px;
+    font-weight: 500;
+    margin: 10px 0px;
+}
+/* Close Button */
+.close-btn {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.btn-primary{
+    width: 100px;
+}
+.modal-buttons{
+    display: flex;
+    justify-content: center;
+}
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%;
+    }
+}
+</style>
+<script>
+      // Function to display the modal
+      function opencancelOrder() {
+        document.getElementById('cancelModal').style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+    }
+</script>
 </body>
 
 </html>
