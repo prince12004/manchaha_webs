@@ -287,37 +287,72 @@
             <div class="rertuns">
 
                 <div id="bank-account-fields" style="display: none;">
-                    <div class="main-detaila">
-                        <div class="details-account">
-                            <label for="bank-name">Bank Name</label>
-                            <input type="text" name="bank_name" id="bank-name" placeholder="Enter your bank name" value="" required>
-                        </div>
-                        <div class="details-account">
-                            <label for="account-holder">Account Holder Name</label>
-                            <input type="text" name="account_holder" id="account-holder" placeholder="Enter the account holder's name" value="" required>
-                        </div>
+                    <!-- Existing Bank Account Option -->
+                    <label>Select Existing Bank Account</label>
+                    <div>
+                        <input type="radio" name="bank_account" id="bank-account-abc" value="ABC Bank" required>
+                        <label for="bank-account-abc">ABC Bank - John Doe</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="bank_account" id="bank-account-xyz" value="XYZ Bank" required>
+                        <label for="bank-account-xyz">XYZ Bank - Jane Doe</label>
                     </div>
 
-                    <div class="main-detaila">
-                        <div class="details-account">
-                            <label for="account-number">Account Number</label>
-                            <input type="text" name="account_number" id="account-number" placeholder="Enter your account number" value="" required>
+                    <!-- Radio Button for Adding New Bank Account -->
+                    <div>
+                        <input type="radio" name="bank_account" id="bank-account-new" value="new" onclick="toggleNewAccountFields()" required>
+                        <label for="bank-account-new">Add New Account</label>
+                    </div>
+
+                    <!-- New Account Details (Initially Hidden) -->
+                    <div id="new-bank-account" style="display: none;">
+                        <div class="main-detaila">
+                            <div class="details-account">
+                                <label for="new-bank-name">Bank Name</label>
+                                <input type="text" name="new_bank_name" id="new-bank-name" placeholder="Enter your bank name" value="" required>
+                            </div>
+                            <div class="details-account">
+                                <label for="new-account-holder">Account Holder Name</label>
+                                <input type="text" name="new_account_holder" id="new-account-holder" placeholder="Enter the account holder's name" value="" required>
+                            </div>
                         </div>
-                        <div class="details-account">
-                            <label for="ifsc-code">IFSC Code</label>
-                            <input type="text" name="ifsc_code" id="ifsc-code" placeholder="Enter IFSC Code" value="" required>
+
+                        <div class="main-detaila">
+                            <div class="details-account">
+                                <label for="new-account-number">Account Number</label>
+                                <input type="text" name="new_account_number" id="new-account-number" placeholder="Enter your account number" value="" required>
+                            </div>
+                            <div class="details-account">
+                                <label for="new-ifsc-code">IFSC Code</label>
+                                <input type="text" name="new_ifsc_code" id="new-ifsc-code" placeholder="Enter IFSC Code" value="" required>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Add UPI Section -->
-
                 <div id="upi-fields" style="display: none;">
-                    <div class="main-detaila">
-                        <div class="details-accounts">
-                            <label for="upi-id">UPI ID (Optional)</label>
-                            <input type="text" name="upi_id" id="upi-id" placeholder="Enter your UPI ID (optional)">
-                        </div>
+                    <!-- Existing UPI Accounts -->
+                    <label>Select Existing UPI Account</label>
+                    <div>
+                        <input type="radio" name="upi_account" id="upi-account-john" value="john.doe@upi" required>
+                        <label for="upi-account-john">john.doe@upi</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="upi_account" id="upi-account-jane" value="jane.doe@upi" required>
+                        <label for="upi-account-jane">jane.doe@upi</label>
+                    </div>
+
+                    <!-- Radio Button for Adding New UPI Account -->
+                    <div>
+                        <input type="radio" name="upi_account" id="upi-account-new" value="new" onclick="toggleNewUpiFields()" required>
+                        <label for="upi-account-new">Add New UPI Account</label>
+                    </div>
+
+                    <!-- New UPI Account Details (Initially Hidden) -->
+                    <div id="new-upi-account" class="details-accounts" style="display: none;">
+                        <label for="new-upi-id">UPI ID</label>
+                        <input type="text" name="new_upi_id" id="new-upi-id" placeholder="Enter your UPI ID" required>
                     </div>
                 </div>
             </div>
@@ -325,31 +360,9 @@
             <button class="submit-btn" type="button" onclick="submitreturn()">Submit Return Request</button>
         </form>
     </div>
-
-    <div id="submittedDetails" style="display:none; padding: 20px; background-color: #f9f9f9; margin-top: 20px;">
-        <h3>Submitted Details:</h3>
-        <p><strong>Bank Name:</strong> <span id="submittedBankName"></span></p>
-        <p><strong>Account Holder:</strong> <span id="submittedAccountHolder"></span></p>
-        <p><strong>Account Number:</strong> <span id="submittedAccountNumber"></span></p>
-        <p><strong>IFSC Code:</strong> <span id="submittedIfscCode"></span></p>
-        <p><strong>UPI ID:</strong> <span id="submittedUpiId"></span></p>
-        <p><strong>Return Reason:</strong> <span id="submittedReason"></span></p>
-        <p><strong>Comments:</strong> <span id="submittedComments"></span></p>
-
-        <div id="submittedImages"></div>
-    </div>
 </section>
 
 <script>
-    // Simulate pre-filled values (For testing purposes, replace with actual data from backend or session)
-    window.onload = function() {
-        // Pre-fill form fields if data is available
-        document.getElementById('bank-name').value = "ABC Bank";
-        document.getElementById('account-holder').value = "John Doe";
-        document.getElementById('account-number').value = "1234567890";
-        document.getElementById('ifsc-code').value = "ABCD1234";
-        document.getElementById('upi-id').value = "john.doe@upi"; // Optional UPI ID
-    }
 
     function showImageInput() {
         var reason = document.getElementById('return-reason').value;
@@ -434,35 +447,47 @@
         images.forEach(function(img) {
             var imageElement = document.createElement('img');
             imageElement.src = img.src;
-            imageElement.style.width = '100px';
-            imageElement.style.height = '80px';
             submittedImagesContainer.appendChild(imageElement);
         });
-
-        // Show the details section
-        document.getElementById('submittedDetails').style.display = 'block';
     }
 
-    // Function to show bank account fields
+    function showAlert(message) {
+        var alertModal = document.getElementById('alertModal');
+        document.getElementById('alertResponse').innerText = message;
+        alertModal.style.display = 'block';
+    }
+
+    function closeAlertModal() {
+        var alertModal = document.getElementById('alertModal');
+        alertModal.style.display = 'none';
+    }
+
     function showBankFields() {
         document.getElementById('bank-account-fields').style.display = 'block';
-        document.getElementById('upi-fields').style.display = 'none'; // Hide UPI fields if bank is selected
+        document.getElementById('upi-fields').style.display = 'none';
     }
 
-    // Function to show UPI fields
     function showUpiFields() {
+        document.getElementById('bank-account-fields').style.display = 'none';
         document.getElementById('upi-fields').style.display = 'block';
-        document.getElementById('bank-account-fields').style.display = 'none'; // Hide bank account fields if UPI is selected
     }
 
-    // Function to show a modal with a custom alert message
-    function showAlert(message) {
-        document.getElementById('alertResponse').innerText = message; // Set the alert message
-        document.getElementById('alertModal').style.display = 'flex'; // Show modal
+    function toggleNewAccountFields() {
+        var newAccountFields = document.getElementById('new-bank-account');
+        if (document.getElementById('bank-account-new').checked) {
+            newAccountFields.style.display = 'block';
+        } else {
+            newAccountFields.style.display = 'none';
+        }
     }
 
-    // Function to close the alert modal
-    function closeAlertModal() {
-        document.getElementById('alertModal').style.display = 'none'; // Hide modal
+    function toggleNewUpiFields() {
+        var newUpiFields = document.getElementById('new-upi-account');
+        if (document.getElementById('upi-account-new').checked) {
+            newUpiFields.style.display = 'flex';
+        } else {
+            newUpiFields.style.display = 'none';
+        }
     }
+
 </script>
