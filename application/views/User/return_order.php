@@ -97,7 +97,8 @@
 
     .rertuns select,
     .rertuns input[type="text"],
-    .rertuns input[type="file"] {
+    .rertuns input[type="file"],
+    .rertuns input[type="email"] {
         padding: 10px;
         outline: none;
         font-size: 14px;
@@ -106,7 +107,8 @@
         margin-bottom: 15px;
     }
 
-    .rertuns input[type="text"] {
+    .rertuns input[type="text"],
+    .rertuns input[type="email"] {
         height: 40px;
     }
 
@@ -170,69 +172,198 @@
         text-align: center;
         margin-top: 10px;
     }
-    label span{
+
+    label span {
         color: red;
     }
+
     .submit-btn:hover {
         background-color: #0056b3;
     }
-    @media (max-width: 768px) {
-    .new-return {
-        width: 90%;
-    }
-    .newsLetter-section{
-        margin-top: 30px;
-    }
-    .modal-content {
-        width: 90%;
-    }
-    .preview-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .preview-container img{
-        width: 48%;
-        height: 100px;
-    }
-}
 
+    .main-detaila {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .details-account {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .details-accounts {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #bank-account-fields {
+        margin: 15px 0px;
+    }
+
+    #upi-fields {
+        margin: 15px 0px;
+    }
+
+    .add-btn {
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+        margin-top: 5px;
+        width: 100%;
+    }
+
+    .neww-buttons {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .new-return {
+            width: 90%;
+        }
+
+        .newsLetter-section {
+            margin-top: 30px;
+        }
+
+        .modal-content {
+            width: 90%;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-container img {
+            width: 48%;
+            height: 100px;
+        }
+    }
 </style>
 
 <section class="new-return">
     <div class="mains-section">
-    <form id="returnForm">
-    <div class="rertuns">
-        <label for="return-reason">Reason for Return</label>
-        <select name="return_reason" id="return-reason" required onchange="showImageInput()">
-            <option value="">Select a reason</option>
-            <option value="Damaged">Damaged Item</option>
-            <option value="Wrong Size">Wrong Size</option>
-            <option value="Defective">Defective Product</option>
-            <option value="Other">Other</option>
-        </select>
+        <form id="returnForm">
+            <!-- Return Details Section -->
+            <div class="rertuns">
+                <label for="return-reason">Reason for Return</label>
+                <select name="return_reason" id="return-reason" required onchange="showImageInput()">
+                    <option value="">Select a reason</option>
+                    <option value="Damaged">Damaged Item</option>
+                    <option value="Wrong Size">Wrong Size</option>
+                    <option value="Defective">Defective Product</option>
+                    <option value="Other">Other</option>
+                </select>
 
-        <label for="comments">Comments <span>*</span> </label>
-        <input type="text" name="comment" id="comments" placeholder="Enter your comment" required>
+                <label for="comments">Comments <span>*</span> </label>
+                <input type="text" name="comment" id="comments" placeholder="Enter your comment" required>
 
-        <div id="image-container" style="display: none;">
-            <label for="image-upload" class="upload-btn">
-                <i class="fa fa-upload"></i> Upload Image
-            </label>
-            <input type="file" multiple name="returnimage[]" id="image-upload" accept="image/*" onchange="previewImage()">
-        </div>
+                <div id="image-container" style="display: none;">
+                    <label for="image-upload" class="upload-btn">
+                        <i class="fa fa-upload"></i> Upload Image
+                    </label>
+                    <input type="file" multiple name="returnimage[]" id="image-upload" accept="image/*" onchange="previewImage()">
+                </div>
 
-        <div id="preview-container" class="preview-container">
-            <!-- Image previews will appear here -->
-        </div>
+                <div id="preview-container" class="preview-container">
+                    <!-- Image previews will appear here -->
+                </div>
+            </div>
+            <div class="neww-buttons">
+                <button type="button" class="add-btn" onclick="showBankFields()">Add Bank Account</button>
+                <button type="button" class="add-btn" onclick="showUpiFields()">Add UPI Account</button>
+            </div>
+            <!-- Account Details Section -->
+            <div class="rertuns">
 
-        <button class="submit-btn" type="button" onclick="submitreturn()">Submit Return Request</button>
-    </div>
-</form>
+                <div id="bank-account-fields" style="display: none;">
+                    <!-- Existing Bank Account Option -->
+                    <label>Select Existing Bank Account</label>
+                    <div>
+                        <input type="radio" name="bank_account" id="bank-account-abc" value="ABC Bank" required>
+                        <label for="bank-account-abc">ABC Bank - John Doe</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="bank_account" id="bank-account-xyz" value="XYZ Bank" required>
+                        <label for="bank-account-xyz">XYZ Bank - Jane Doe</label>
+                    </div>
+
+                    <!-- Radio Button for Adding New Bank Account -->
+                    <div>
+                        <input type="radio" name="bank_account" id="bank-account-new" value="new" onclick="toggleNewAccountFields()" required>
+                        <label for="bank-account-new">Add New Account</label>
+                    </div>
+
+                    <!-- New Account Details (Initially Hidden) -->
+                    <div id="new-bank-account" style="display: none;">
+                        <div class="main-detaila">
+                            <div class="details-account">
+                                <label for="new-bank-name">Bank Name</label>
+                                <input type="text" name="new_bank_name" id="new-bank-name" placeholder="Enter your bank name" value="" required>
+                            </div>
+                            <div class="details-account">
+                                <label for="new-account-holder">Account Holder Name</label>
+                                <input type="text" name="new_account_holder" id="new-account-holder" placeholder="Enter the account holder's name" value="" required>
+                            </div>
+                        </div>
+
+                        <div class="main-detaila">
+                            <div class="details-account">
+                                <label for="new-account-number">Account Number</label>
+                                <input type="text" name="new_account_number" id="new-account-number" placeholder="Enter your account number" value="" required>
+                            </div>
+                            <div class="details-account">
+                                <label for="new-ifsc-code">IFSC Code</label>
+                                <input type="text" name="new_ifsc_code" id="new-ifsc-code" placeholder="Enter IFSC Code" value="" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add UPI Section -->
+                <div id="upi-fields" style="display: none;">
+                    <!-- Existing UPI Accounts -->
+                    <label>Select Existing UPI Account</label>
+                    <div>
+                        <input type="radio" name="upi_account" id="upi-account-john" value="john.doe@upi" required>
+                        <label for="upi-account-john">john.doe@upi</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="upi_account" id="upi-account-jane" value="jane.doe@upi" required>
+                        <label for="upi-account-jane">jane.doe@upi</label>
+                    </div>
+
+                    <!-- Radio Button for Adding New UPI Account -->
+                    <div>
+                        <input type="radio" name="upi_account" id="upi-account-new" value="new" onclick="toggleNewUpiFields()" required>
+                        <label for="upi-account-new">Add New UPI Account</label>
+                    </div>
+
+                    <!-- New UPI Account Details (Initially Hidden) -->
+                    <div id="new-upi-account" class="details-accounts" style="display: none;">
+                        <label for="new-upi-id">UPI ID</label>
+                        <input type="text" name="new_upi_id" id="new-upi-id" placeholder="Enter your UPI ID" required>
+                    </div>
+                </div>
+            </div>
+
+            <button class="submit-btn" type="button" onclick="submitreturn()">Submit Return Request</button>
+        </form>
     </div>
 </section>
 
 <script>
+
     function showImageInput() {
         var reason = document.getElementById('return-reason').value;
         var imageContainer = document.getElementById('image-container');
@@ -256,7 +387,7 @@
             var file = files[i];
             var reader = new FileReader();
 
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 var img = document.createElement('img');
                 img.src = e.target.result;
                 img.classList.add('preview-img');
@@ -264,7 +395,7 @@
                 var removeBtn = document.createElement('span');
                 removeBtn.innerHTML = '&times;';
                 removeBtn.classList.add('remove-btn');
-                removeBtn.onclick = function () {
+                removeBtn.onclick = function() {
                     img.remove();
                     removeBtn.remove();
                 };
@@ -284,33 +415,79 @@
         var formData = new FormData(document.getElementById('returnForm'));
 
         fetch('submitreturn', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.status === 'success') {
-                document.getElementById('returnForm').reset();
-                document.getElementById('preview-container').innerHTML = '';
-            }
-        })
-        .catch(error => console.error('Error:', error));
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showAlert(data.message);
+                if (data.status === 'success') {
+                    displaySubmittedDetails();
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 
+    function displaySubmittedDetails() {
+        // Show account details
+        document.getElementById('submittedBankName').innerText = document.getElementById('bank-name').value;
+        document.getElementById('submittedAccountHolder').innerText = document.getElementById('account-holder').value;
+        document.getElementById('submittedAccountNumber').innerText = document.getElementById('account-number').value;
+        document.getElementById('submittedIfscCode').innerText = document.getElementById('ifsc-code').value;
+        document.getElementById('submittedUpiId').innerText = document.getElementById('upi-id').value;
 
-    // Function to show a modal with a custom alert message
+        // Show return details
+        document.getElementById('submittedReason').innerText = document.getElementById('return-reason').value;
+        document.getElementById('submittedComments').innerText = document.getElementById('comments').value;
+
+        // Show images
+        var previewContainer = document.getElementById('preview-container');
+        var submittedImagesContainer = document.getElementById('submittedImages');
+        var images = previewContainer.querySelectorAll('img');
+        images.forEach(function(img) {
+            var imageElement = document.createElement('img');
+            imageElement.src = img.src;
+            submittedImagesContainer.appendChild(imageElement);
+        });
+    }
+
     function showAlert(message) {
-        document.getElementById('alertResponse').innerText = message; // Set the alert message
-        document.getElementById('alertModal').style.display = 'flex'; // Show modal
+        var alertModal = document.getElementById('alertModal');
+        document.getElementById('alertResponse').innerText = message;
+        alertModal.style.display = 'block';
     }
 
-    // Function to close the alert modal
     function closeAlertModal() {
-        document.getElementById('alertModal').style.display = 'none'; // Hide modal
+        var alertModal = document.getElementById('alertModal');
+        alertModal.style.display = 'none';
     }
 
-    // Function to submit the form, ensuring all required fields are filled
+    function showBankFields() {
+        document.getElementById('bank-account-fields').style.display = 'block';
+        document.getElementById('upi-fields').style.display = 'none';
+    }
 
+    function showUpiFields() {
+        document.getElementById('bank-account-fields').style.display = 'none';
+        document.getElementById('upi-fields').style.display = 'block';
+    }
+
+    function toggleNewAccountFields() {
+        var newAccountFields = document.getElementById('new-bank-account');
+        if (document.getElementById('bank-account-new').checked) {
+            newAccountFields.style.display = 'block';
+        } else {
+            newAccountFields.style.display = 'none';
+        }
+    }
+
+    function toggleNewUpiFields() {
+        var newUpiFields = document.getElementById('new-upi-account');
+        if (document.getElementById('upi-account-new').checked) {
+            newUpiFields.style.display = 'flex';
+        } else {
+            newUpiFields.style.display = 'none';
+        }
+    }
 
 </script>
