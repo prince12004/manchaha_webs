@@ -179,7 +179,7 @@ class Ship extends CI_Controller
 
     public function trackingdata($order)
     {
-        $url = "https://apiv2.shiprocket.in/v1/external/courier/track?order_id={$order}";
+        $url = "https://apiv2.shiprocket.in/v1/external/courier/track/shipment/{$order}";
         $api_key = $this->getAuthToken(); 
         // Initialize cURL
         $curl = curl_init();
@@ -332,29 +332,82 @@ class Ship extends CI_Controller
         }
     }
 
-
-
-    function getShiprocketOrders($page,$type,$andType = '',$andType1 = '',$andType2 = '',$andType3 = '',$andType4 = '') {
-        // API URL
-        $url = 'https://apiv2.shiprocket.in/v1/external/orders?filter_by=status&filter=' . urlencode($type) . ',' . urlencode($andType) . ',' . urlencode($andType1) . ',' . urlencode($andType2) . ',' . urlencode($andType3). ',' . urlencode($andType4).'?sort_by=updated_at&sort=DESC'.'&page='.urlencode($page);
+    function getShiprocketOrders($page, $type, $andType = '', $andType1 = '', $andType2 = '', $andType3 = '', $andType4 = '', $andType5 = '', $filters = null) {
+        $baseUrl = 'https://apiv2.shiprocket.in/v1/external/orders?';
+    
+        // Collect status filters
+        $statusFilters = array_filter([$type, $andType, $andType1, $andType2, $andType3, $andType4, $andType5]);
+    
+        // Initialize query parameters
+        $queryParams = [
+            'sort_by' => 'updated_at',
+            'sort' => 'DESC',
+            'page' => urlencode($page),
+        ];
+    
+        // Apply Status Filters
+        if (!empty($statusFilters)) {
+            $queryParams['filter_by'] = 'status';
+            $queryParams['filter'] = implode(',', $statusFilters);
+        }
+    
+        // Apply Additional Filters
+        if (!empty($filters)) {
+            if (!empty($filters['label']) && $filters['label'] == 'yes') {
+                $queryParams['filter_by'] = 'status';
+                $queryParams['filter'] = '4';
+            }
+    
+            if (!empty($filters['sortby'])) {
+                if ($filters['sortby'] == 'awb') {
+                    $queryParams['search'] = 'awb';
+                } else {
+                    $queryParams['sort_by'] = urlencode($filters['sortby']);
+                }
+            }
+    
+            if (!empty($filters['inp'])) {
+                $queryParams['search'] = urlencode($filters['inp']);
+            }
+    
+            if (!empty($filters['payment_method'])) {
+                $queryParams['payment_method'] = urlencode($filters['payment_method']);
+            }
+    
+            if (!empty($filters['from']) && !empty($filters['to'])) {
+                $from_date = urldecode($filters['from']); // Decode URL-encoded values
+                $to_date = urldecode($filters['to']);
+            
+                $queryParams['from'] = date('Y-m-d H:i:s', strtotime($from_date)); // Convert to correct format
+                $queryParams['to'] = date('Y-m-d H:i:s', strtotime($to_date));
+            }
+        }
+    
+        // Generate final URL
+        $url = $baseUrl . http_build_query($queryParams);
+// print_r($url);
+// exit;
         $ch = curl_init($url);
         $apiToken = $this->getAuthToken();
-        $headers = [
+    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Authorization: Bearer ' . $apiToken
-        ];
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        ]);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
         $response = curl_exec($ch);
-        if ($error = curl_error($ch)) {
-            echo 'cURL Error: ' . $error;
-        }
         curl_close($ch);
+    
         return json_decode($response, true);
     }
+    
+    
+    
+    
 
 
     function getShiprocketreturns($page) {
@@ -428,8 +481,6 @@ class Ship extends CI_Controller
             echo json_encode(['error' => 'Invalid input data']);
             return;
         }
-    
-        // Determine COD status
         $cod = ($data['payment_status'] == 1) ? 0 : 1;
     
         // Prepare partner data for courier check
@@ -710,11 +761,11 @@ public function returnShip($data)
         echo 'Error:' . curl_error($ch);
         return false;
     }
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     $response_data = json_decode($response, true);
 
     // Check for HTTP status code
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     if ($http_code != 200) {
         return [
             'status' => 'error',

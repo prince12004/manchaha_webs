@@ -157,14 +157,14 @@ public function getOrders($status)
 
 public function getOrderDetails($shipment_id)
 {
-    return $this->db->select('orders.*, users.*, address.*,jwellary_varient.weight,jwellary_varient.varient_sku') // Select all columns from relevant tables
+    return $this->db->select('orders.*, users.*, address.*,jwellary_varient.weight,jwellary_varient.varient_sku,address.name AS Aname') // Select all columns from relevant tables
                     ->from('orders') // Main table
-                    ->where('orders.shipment_id', $shipment_id) // Filter by order ID
-                    ->join('address', 'address.id = orders.address_id') // Join address table
-                    ->join('users', 'users.UserID = orders.user_id') // Join users table
+                    ->where('orders.shipment_id', $shipment_id)
+                    ->join('address', 'address.id = orders.address_id')
+                    ->join('users', 'users.UserID = orders.user_id')
                     ->join('jwellary_varient','jwellary_varient.varient_id = orders.varient_id')
                     ->get()
-                    ->row_array(); // Fetch as an associative array
+                    ->row_array();
 }
 
 

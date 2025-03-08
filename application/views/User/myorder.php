@@ -144,7 +144,7 @@
 
 
                     <td>
-                        <?php if (($orderData['order_status']==5)||($orderData['order_status']==7)) {?>
+                        <?php if (($orderData['track']['tracking_data']['shipment_track'][0]['current_status']=='Canceled')||($orderData['order_status']==7)) {?>
                         <div class="text-danger">cancelled</div>
                         <?php }elseif(isset($orderData['track']['tracking_data'])&&$orderData['track']['tracking_data']['track_status'] ===1){?>
                         <div class="d-flex delivery-expected">

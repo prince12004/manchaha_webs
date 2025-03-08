@@ -10,7 +10,7 @@
                 Overview
                 <p>6</p>
             </a> -->
-            <a href="<?= base_url('returntracking')?>" class="page-tab active" id="readyToShipTab">
+            <a href="<?= base_url('returntracking/new')?>" class="page-tab active" id="readyToShipTab">
                 Return Tracking
 
             </a>
@@ -27,7 +27,12 @@
 
     <div class="ship-filter return-filter">
         <div class="return-tabs">
-            <a href="#">
+        <a href="<?= base_url('returntracking/new')?>">
+                <div class="redirect-tab">
+                    <h4>New Returns</h4>
+                </div>
+            </a>
+            <a href="<?= base_url('returntracking/pending')?>">
                 <div class="redirect-tab">
                     <h4>In Transit</h4>
                 </div>
@@ -50,6 +55,12 @@
             <a href="#">
                 <div class="redirect-tab">
                     <h4>Disposed</h4>
+                </div>
+            </a>
+
+            <a href="<?= base_url('returntracking/new/?ret=2')?>">
+                <div class="redirect-tab">
+                    <h4>Disapproved</h4>
                 </div>
             </a>
         </div>
@@ -131,7 +142,7 @@
                                 <td><?= isset($order['shipments']['awb'])?></td>
                                 <td>
                                     <div class="status-buttons">
-                                        <button class="accepts" onclick="viewdetails('<?= isset($order['shipments']['awb'])?>')">
+                                        <button class="accepts" onclick="viewdetails('<?= $order['id']?>')">
                                             View Details
                                         </button>
                                     </div>
@@ -170,7 +181,7 @@ $(document).ready(function() {
 
 function viewdetails(awb)
 {
-    window.location.href = '<?= base_url('viewdetails')?>'+awb;
+    window.location.href = '<?= base_url('viewdetails/')?>'+awb;
 }
 </script>
 <script>
@@ -185,31 +196,22 @@ $(document).ready(function () {
             localStorage.setItem('activeTab', activeTab); // Store the "In Transit" tab as active
         }
 
-        // Loop through each redirect-tab and set active class on <h4>
         $('.return-tabs a').each(function () {
             const $tab = $(this);
             const hrefPath = $tab.attr('href');
 
-            // If the current URL matches the href or it's the stored active tab, mark it as active
             if (path.includes(hrefPath) || hrefPath === activeTab) {
-                $('.return-tabs a').find('h4').removeClass('active-tab'); // Remove active from all <h4>
-                $tab.find('h4').addClass('active-tab'); // Add active to the current <h4>
+                $('.return-tabs a').find('h4').removeClass('active-tab');
+                $tab.find('h4').addClass('active-tab'); 
             }
         });
     }
 
-    // Get the current page's URL path
     const currentPath = window.location.pathname;
-
-    // Always clear the localStorage on page load to match the correct path
     localStorage.removeItem('activeTab');
-
-    // Set active state based on current path (matches the correct page after redirect)
     setActiveTabByPath(currentPath);
 
-    // When a tab is clicked, update localStorage with the new active link
     $('.return-tabs a').on('click', function (event) {
-        event.preventDefault(); // Prevent default action to ensure we handle state
 
         const href = $(this).attr('href');
         localStorage.setItem('activeTab', href);

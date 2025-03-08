@@ -329,8 +329,8 @@ $tax = 0
                     <span>Total:</span>
                     <div >
                          <strong style="display: flex; gap: 4px;">
-                        <div id="totall"><?= number_format($total = $subtotal+$gst+$tax, 2) ?></div>
-                     <!-- <div id="totall"><?= number_format(round($subtotal + $gst + $tax, 2), 2, '.', '') ?></div> -->
+                        <div id="totall"><?= number_format($total = $subtotal+$tax, 2) ?></div>
+                     <!-- <div id="totall"><?= number_format(round($subtotal + $tax, 2), 2, '.', '') ?></div> -->
 
                 <div>    &#8377; </div>
                 </strong></div>
@@ -352,6 +352,7 @@ $tax = 0
             </label>
             <br><br>
             <button type="button" class="place-order" onclick="placeOrder()">Place Order</button>
+           
         </form>
 
 
@@ -560,31 +561,38 @@ $tax = 0
 
 <script>
 let selectedAddress = 0;
+let phoneNumber = '';
 let payment_type = 'COD';
 const codharge = 40;
 let total = <?= $total?>;
 let payment_id = 0;
+let pid = 0;
 let signature = ' ';
-//let order_id = Math.random(100000,999999)+time();
+let order_id =''
 
 
 // Razorpay options
 var options = {
-    "key": "rzp_live_wCfwLMvANxj9jD",
-    "amount": Math.round(total * 100),
+    "key": "rzp_test_otuyHTV0XFkyFg",
+    //"amount": Math.round(total * 100),
     "currency": "INR",
     "name": "MNNCHAHA",
+    "description": "Payment",
     "image": "https://mnnchaha.com/assets/images/header-new-logo.png",
     "handler": function(response) {
         console.log(response);
-        payment_type = 'Prepaid';
+        
+        
         payment_id = response.razorpay_payment_id;
         signature = response.razorpay_signature;
-        //payment_type = 'Prepaid';
+
+        checkPaymentStatus(payment_id);
+
+
         payNow();
     },
     "prefill": {
-        "contact": phone 
+        "contact": phoneNumber 
     },
     "theme": {
         "color": "#3399cc"
@@ -593,28 +601,41 @@ var options = {
 
 var rzp1 = new Razorpay(options); // Initialize Razorpay
 
-// Razorpay button click event
-// document.getElementById('rzp-button1').onclick = function(e) {
-//     if (selectedAddress <= 0) {
-//         document.getElementById('alertResponse').innerHTML = 'Please select a delivery address';
-//         alertModal();
-//         return;
-//     }
-//     rzp1.open();
-//     e.preventDefault();
-// };
-//  function checkCod(isCod){
-//     if (isCod) {
-//         document.getElementById('codChages').style.display = 'block';
-//         document.getElementById('totall').innerText = total+codharge;
-//         total = total+codharge
-        
-//     }else{
-//         document.getElementById('codChages').style.display = 'none';
-//         document.getElementById('totall').innerText = <?= $total?>;
-//         total = <?= $total?>;
-//     }
-//  }
+// Function to check payment status
+
+function checkPaymentStatus(payment_id) {
+    $.ajax({
+        url: '<?= base_url('checkPaymentStatus') ?>',
+        type: 'POST',
+        data: {
+            payment_id: payment_id
+        },
+        success: function(response) {
+            console.log(response);
+            response = JSON.parse(response);
+            if (response.status === 'success') {
+                response = response.data;
+                payment_id = response.id;
+                pid = response.pid;
+                order_id = response.order_id;
+                total = response.amount / 100;
+                payment_type = 'Prepaid';
+                payNow()
+                document.getElementById('alertResponse').innerHTML = 'Order Successfull';
+                alertModal();
+                
+            } else {
+                document.getElementById('alertResponse').innerHTML = 'Payment Failed';
+                alertModal();
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error Checking Payment Status:', error);
+            document.getElementById('alertResponse').innerHTML = 'An error occurred while checking the payment status';
+            alertModal();
+        }
+    });
+}
 
 
 function checkCod(isCod){
@@ -634,6 +655,7 @@ document.getElementById('totall').innerText = '₹ ' + total.toFixed(2);
 // Place Order Function
 function placeOrder() {
     // Get the selected payment method
+    //console.log(order_id);
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
 
     if (!selectedPaymentMethod) {
@@ -653,7 +675,34 @@ function placeOrder() {
         payment_type = 'COD';
         payNow(); // Call the payNow function for COD
     } else if (selectedPaymentMethod.value === 'online') {
-        rzp1.open(); // Open Razorpay modal
+        function createOrder() {
+            $.ajax({
+                url: '<?= base_url('Razorpay/create_order') ?>',
+                type: 'POST',
+                data: {
+                    amount: total*100
+                },
+                success: function(response) {
+                    console.log(response);
+                    response = JSON.parse(response);
+                    if (response.status === 'created') {
+                        options.amount = response.amount_due;
+                        options.order_id = response.id;
+                        rzp1 = new Razorpay(options);
+                        console.log(options);
+                        rzp1.open();
+                    }
+                 
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error Creating Order:', error);
+                    document.getElementById('alertResponse').innerHTML = 'An error occurred while creating the order';
+                    alertModal();
+                }
+            });
+        }
+        createOrder();
+       // rzp1.open(); // Open Razorpay modal
     }
 }
 
@@ -884,27 +933,7 @@ $(document).ready(function() {
 
     });
 
-    // Handle the form submission
 
-    // Edit an existing card
-    // $('#addressContainer').on('click', '.edit-option', function() {
-    //     editingCard = $(this).closest('.col-md-6');
-    //     const fullName = $(editingCard).find('.address-name').text();
-    //     const phone = $(editingCard).find('.address-phone').text();
-    //     const email = $(editingCard).find('.address-email').text();
-    //     const street = $(editingCard).find('.address-street').text().split(',')[0];
-    //     const city = $(editingCard).find('.address-city').text();
-    //     const apartment = $(editingCard).find('.address-street').text().split(',')[1] || '';
-
-    //     $('#fullName').val(fullName);
-    //     $('#phone').val(phone);
-    //     $('#email').val(email);
-    //     $('#city').val(city.trim());
-    //     $('#apartment').val(apartment.trim());
-    //     $('#street').val(street.trim());
-
-    //     $('#addAddressModal').modal('show');
-    // });
 
 
     $(document).ready(function() {
@@ -988,17 +1017,18 @@ function payNow() {
     }
     let total = '<?= $total?>';
     const subtotal = '<?= $subtotal?>';
-    const gst = '<?= $gst?>';
+    
     if (payment_type === 'COD') {
         total = parseFloat(total) + 40; // Ensure it's numeric before adding
     }
     const finalData = {
         total: total,
         subtotal: subtotal,
-        gst: gst,
         deliveryAddress: selectedAddress,
         payment_type: payment_type,
         payment_id:payment_id,
+        pid:pid,
+        porder_id:order_id,
         signature:signature
     };
 

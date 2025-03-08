@@ -148,9 +148,6 @@ button:disabled {
 
             <button id="req-otp-btn" class="req-otp-btn" type="button" onclick="showModal() ">Request OTP</button>
             <p>Login Using Mobile Number <a href="<?= base_url('mobileLogin')?>">Click Here</a></p>
-            <a href="<?= base_url('GoogleLogin/login'); ?>">
-    <img src="https://developers.google.com/identity/images/btn_google_signin_light_normal_web.png" />
-</a>
             <p class="terms-section">By creating an account, you agree to our <br /> <a href="#">Terms of Service</a> &amp;
                 <a href="#">Privacy Policy</a></p>
         </form>

@@ -170,6 +170,8 @@ class User extends Ship
             show_error('User not authenticated. Please log in again.');
             return;
         }
+        $order_id = 'order_'.time().round(11,99);
+        $this->session->set_userdata('order_id',$order_id);
     
         $userData = $this->UserModel->get_user($token);
         if (!$userData) {
@@ -302,7 +304,6 @@ class User extends Ship
 
     public function payment()
     {
-        // Authenticate user
         $token = $this->session->userdata('userToken');
         if (!$token) {
             echo json_encode(['status' => 'error', 'message' => 'User not authenticated.']);
@@ -315,22 +316,17 @@ class User extends Ship
             echo json_encode(['status' => 'error', 'message' => 'User details not found.']);
             return;
         }
-    
-        // Validate cart and address
         $charges = $this->input->post();
         $cart = $this->session->userdata('cartData');
         if (empty($cart)) {
             echo json_encode(['status' => 'error', 'message' => 'Cart is empty.']);
             return;
         }
-    
         $address = $this->db->select('*')->from('address')->where('id', $charges['deliveryAddress'])->where('show_hide', 1)->get()->row_array();
         if (!$address) {
             echo json_encode(['status' => 'error', 'message' => 'Address not found.']);
             return;
         }
-    
-        // Prepare shipment data
         $details = [];
         $vars = [];
         foreach ($cart as $products) {
@@ -339,6 +335,8 @@ class User extends Ship
                 $product['quantity'] = $products['quantity'];
                 $details[] = $product;
                 $vars[] = $product['varient_id'];
+
+                $this->createOrder($product, $charges, $customer);
             } else {
                 log_message('error', "Product data not found for: " . json_encode($products));
             }
@@ -384,6 +382,25 @@ class User extends Ship
     
         echo json_encode(['status' => 'error', 'message' => 'Error saving order details.']);
     }
+
+
+
+    public function createOrder($products, $charges, $customer)
+    {
+
+        $preData = [
+            'varient_id' => $products['varient_id'],
+            'product_id' => $products['id'],
+            'quantity' => $products['quantity'],
+            'address_id' => $charges['deliveryAddress'],
+            'user_id' => $customer['UserID'],
+            'amount' => $products['sale_price'],
+            'payment_status' => ($charges['payment_type'] === 'Prepaid') ? '1' : '2',
+            'payment_type' => ($charges['payment_type'] === 'Prepaid') ? 'prepaid' : 'cod',
+            'payment'=> ($charges['pid']) ? $charges['pid'] : '',
+        ];
+        $this->db->insert('orders', $preData);
+    }
     
     // Helper method to prepare final product data
     private function prepareFinalProductData($products, $fiproduct, $charges, $customer)
@@ -397,12 +414,13 @@ class User extends Ship
             'address_id' => $charges['deliveryAddress'],
             'user_id' => $customer['UserID'],
             'amount' => $fiproduct['sale_price'],
+            'taxes'=>($fiproduct['sale_price']*$fiproduct['applicable_tax']*$products['quantity'])/100,
             
         ];
 
-        $finalproduct['payment_status'] = ($charges['payment_type'] === 'Prepaid') ? '1' : '2';
-        $finalproduct['payment_type'] = ($charges['payment_type'] === 'Prepaid') ? '1' : '2';
-        if ($charges['payment_type'] === 'prepaid') {
+        $finalproduct['payment_status'] = ($charges['payment_type'] == 'Prepaid') ? '1' : '2';
+        $finalproduct['payment_type'] = ($charges['payment_type'] == 'Prepaid') ? 'prepaid' : 'cod';
+        if ($charges['payment_type'] == 'prepaid') {
             $tokenID = $this->UserModel->decodeToken($this->session->userdata('userToken'));
             $user_id = $tokenID[0]->UserID;
             $pay = [
@@ -517,7 +535,6 @@ public function processShip($data)
                 ]
             ],
             "payment_method" => $data['charges']['payment_type'],
-            "shipping_charges" => $data['charges']['gst'],
             "giftwrap_charges" => $data['charges']['giftwrap_charges'] ?? "0",
             "transaction_charges" => $data['charges']['transaction_charges'] ?? "0",
             "total_discount" => $data['charges']['total_discount'] ?? "0",
@@ -708,9 +725,7 @@ public function orderstatus($id)
     
     $order = $this->UserModel->getOrder($id);
     $track = $this->trackorder($order['order_id']);
-    $tracking = $this->trackingdata($order['order_id']);
-    $track = $this->trackorder($order['order_id']);
-    $tracking = $this->trackingdata($order['order_id']);
+    $tracking = $this->trackingdata($order['shipment_id']);
 
         $data['trackingdata'] = $tracking;
         $data['order'] = $order;
@@ -1093,6 +1108,12 @@ public function replace(){
     $this->load->view('User/header');
     $this->load->view('User/replace_order');
     $this->load->view('User/footer');
+}
+
+
+public function pay_razor_success()
+{
+    
 }
 
 }

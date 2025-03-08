@@ -72,6 +72,13 @@ $banner = $this->db->select('banner.*')
     $this->load->view('User/index', ['data' => $data]);
 }
 
+public function generateApiKey($length = 32) {
+     print_r(bin2hex(random_bytes($length)));
+
+}
+
+
+
 public function cardlist($categoryID)
 {
     

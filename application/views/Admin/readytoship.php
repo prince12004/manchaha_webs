@@ -28,29 +28,32 @@
         <div class="filters-by">
             <div class="mains-filt">
                 <h3> Filter by :</h3>
-                <select class="main-filters">
+                <select class="main-filters" onchange="filterByLabel(this.value)">
                     <option>Label Download</option>
-                    <option>Yes</option>
-                    <option> No </option>
+                    <option value="yes">Yes</option>
+                    <option value="no"> No </option>
                 </select>
 
-                <select class="main-filters">
-                    <option>All Filters</option>
-                    <option>Yes</option>
-                    <option> No </option>
+                <select class="main-filters" name="payment-type" onchange="filterByPaymentType(this.value)">
+                    <option>Payment Type</option>
+                    <option value="prepaid">Prepaid</option>
+                    <option value="cod" > COD </option>
                 </select>
             </div>
         </div>
         <div class="ships-by">
             <div class="shorts-filter">
                 <h3>Sort by :</h3>
-                <select class="main-filters">
-                    <option>SKU ID</option>
-                    <option>Yes</option>
-                    <option> No </option>
+                <form id="filterForm">
+                <select class="main-filters" id="sortby" name="sortby">
+                    <option value="id">Channel Order Id</option>
+                    <option value="awb">AWB </option>
+                    
                 </select>
 
-                <input type="text" placeholder="SKU ID">
+                <input type="text" id="inp" name="inp" placeholder="Enter Value">
+                <button type="button" onclick="applyfilter()" class="btn btn-primary">Submit</button>
+                </form>
             </div>
         </div>
     </div>
@@ -68,9 +71,12 @@
                             <tr>
                                 <th><input type="checkbox" value=""></th>
                                 <th>Product Details</th>
-                                <th>Sub Order ID</th>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <td>Channel Order Id</td>
                                 <th>SKU ID</th>
-                                <th>Manchaha ID</th>
+                                <th>AWB Number</th>
+                                <th>Status</th>
                                 <th>Size</th>
                                 <!-- <th>Order Date</th> -->
                                 <th>Quantity</th>
@@ -92,8 +98,11 @@
                                     </div>
                                 </td>
                                 <td><?= $order['id']?></td>
+                                <td><?= $order['customer_name']?></td>
+                                <td><?= $order['channel_order_id']?></td>
                                 <td><?= $order['products'][0]['channel_sku']?></td>
-                                <td><?= $order['shipments'][0]['id']?></td>
+                                <td><?= $order['shipments'][0]['awb']?></td>
+                                <td><?= $order['status']?></td>
                                 <td>Free Size</td>
                                 <td><?= $order['products'][0]['quantity']?></td>
                                 <td>
@@ -299,3 +308,21 @@ table tr th {
 </style>
 
 </html>
+
+<script>
+    function filterByLabel(value) {
+        window.location.href = '<?= base_url('readytoship/1/')?>' + '?label-download=' + value;
+    }
+
+    function applyfilter(){
+        var filterForm = document.getElementById('filterForm');
+        var formData = new FormData(filterForm);
+        var url = '<?= base_url('readytoship/1')?>';
+        var params = new URLSearchParams(formData);
+        window.location.href = url + '?' + params.toString();
+    }
+
+    function filterByPaymentType(value) {
+        window.location.href = '<?= base_url('readytoship/1/')?>' + '?payment-type=' + value;
+    }
+</script>

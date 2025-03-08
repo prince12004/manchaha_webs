@@ -25,6 +25,40 @@
             </a>
         </div>
     </div>
+
+    <div class="ship-filter">
+        <div class="filters-by">
+            <div class="mains-filt">
+                <h3> Filter by :</h3>
+                <select class="main-filters" onchange="filterByLabel(this.value)">
+                    <option>Label Download</option>
+                    <option value="yes">Yes</option>
+                    <option value="no"> No </option>
+                </select>
+
+                <select class="main-filters" name="payment-type" onchange="filterByPaymentType(this.value)">
+                    <option>Payment Type</option>
+                    <option value="prepaid">Prepaid</option>
+                    <option value="cod" > COD </option>
+                </select>
+            </div>
+        </div>
+        <div class="ships-by">
+            <div class="shorts-filter">
+                <h3>Sort by :</h3>
+                <form id="filterForm">
+                <select class="main-filters" id="sortby" name="sortby">
+                    <option value="id"> Channel Order Id</option>
+                    <option value="awb">AWB </option>
+                    
+                </select>
+
+                <input type="text" id="inp" name="inp" placeholder="Enter Value">
+                <button type="button" onclick="applyfilter()" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="row g-3">
         <div class="col-12">
             <div class="table-header d-flex justify-content-between align-items-center ms-4">
@@ -37,10 +71,11 @@
                         <thead>
                             <tr>
                                 <th>Shipped Products</th>
-                                <th>Sub Order ID</th>
+                                <th>Order ID</th>
                                 <th>Customer Name</th>
+                                <th>Channer Order Id</th>
                                 <th>SKU ID</th>
-                                <th>Manchaha ID</th>
+                                <th>Shipment ID</th>
                                 <th>Size</th>
                                 <th>Quantity</th>
                                 <th>Current Status</th>
@@ -60,6 +95,7 @@
                                 </td>
                                 <td><?= $order['id']?></td>
                                 <th><?= $order['customer_name']?></th>
+                                <th><?= $order['channel_order_id']?></th>
                                 <td><?= $order['products'][0]['channel_sku']?></td>
                                 <td><?= $order['shipments'][0]['id']?></td>
                                 <td>Free Size</td>
@@ -169,3 +205,22 @@ table tr th {
 </style>
 
 </html>
+
+
+<script>
+    function filterByLabel(value) {
+        window.location.href = '<?= base_url('shipped/1/')?>' + '?label-download=' + value;
+    }
+
+    function applyfilter(){
+        var filterForm = document.getElementById('filterForm');
+        var formData = new FormData(filterForm);
+        var url = '<?= base_url('shipped/1')?>';
+        var params = new URLSearchParams(formData);
+        window.location.href = url + '?' + params.toString();
+    }
+
+    function filterByPaymentType(value) {
+        window.location.href = '<?= base_url('shipped/1/')?>' + '?payment-type=' + value;
+    }
+</script>

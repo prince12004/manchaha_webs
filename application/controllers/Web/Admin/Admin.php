@@ -767,8 +767,43 @@ public function updateProductDetails() {
     }
     
     public function readytoship($page = 1)
-    {
-        $orders = $this->getShiprocketOrders($page, 3, 4,35,34);
+{
+    // Initialize filters array
+    $filters = [];
+
+    // Capture GET parameters
+    $label = $this->input->get('label-download');
+    $sortby = $this->input->get('sortby');
+    $inp = $this->input->get('inp');
+    $payment_method = $this->input->get('payment-type');
+
+    // Apply filters if present
+    if (!empty($sortby)) {
+        if($sortby =='awb'){
+        $filters['search'] = 'awb';
+        }else{
+        $filters['sortby'] = $sortby;
+        }
+    }
+    if (!empty($inp)) {
+        $filters['inp'] = $inp;
+    }
+    if (!empty($payment_method)) {
+        $filters['payment_method'] = $payment_method;
+    }
+    if (!empty($label)) {
+        $filters['label'] = $label;
+    }
+
+    // Call Shiprocket API with or without filters
+    if (!empty($filters)) {
+        $orders = $this->getShiprocketOrders($page, 3, 4, 35, 34, '', '','', $filters);
+    } else {
+        $orders = $this->getShiprocketOrders($page, 3, 4, 35, 34, '', '','');
+    }
+
+    // **Fix: Check if API response is valid before looping**
+    if (!empty($orders) && isset($orders['data']) && is_array($orders['data'])) {
         foreach ($orders['data'] as &$product) {  
             if (isset($product['products']) && is_array($product['products'])) {
                 foreach ($product['products'] as &$varient) {
@@ -776,14 +811,56 @@ public function updateProductDetails() {
                 }
             }
         }
-        $this->load->view('Admin/readytoship', ['orders' => $orders]);
+    } else {
+        // Debugging: Print API response if it's empty or incorrect
+        log_message('error', 'Shiprocket API returned an invalid response: ' . print_r($orders, true));
+        $orders = ['data' => []]; // Avoid breaking the view
     }
-    
+
+        //     echo'<pre>';
+        // print_r($orders);
+        // exit;
+    // **Fix: Handle case where API response is empty**
+    $this->load->view('Admin/readytoship', ['orders' => $orders]);
+}
+
 	
 
     public function shipped($page = 1){
         //$orders = $this->getShiprocketOrders($page,6,13,17,18,22,21);
-        $orders = $this->getShiprocketOrders($page,6,7,13,17,18,22,21);
+        $filters = [];
+
+        // Capture GET parameters
+        $label = $this->input->get('label-download');
+        $sortby = $this->input->get('sortby');
+        $inp = $this->input->get('inp');
+        $payment_method = $this->input->get('payment-type');
+    
+        // Apply filters if present
+        if (!empty($sortby)) {
+            if($sortby =='awb'){
+            $filters['search'] = 'awb';
+            }else{
+            $filters['sortby'] = $sortby;
+            }
+        }
+        if (!empty($inp)) {
+            $filters['inp'] = $inp;
+        }
+        if (!empty($payment_method)) {
+            $filters['payment_method'] = $payment_method;
+        }
+        if (!empty($label)) {
+            $filters['label'] = $label;
+        }
+
+            // Call Shiprocket API with or without filters
+    if (!empty($filters)) {
+        $orders = $this->getShiprocketOrders($page,6, 7, 13, 17, 18, 22,21, $filters);
+    } else {
+        $orders = $this->getShiprocketOrders($page, 6, 7, 13, 17, 18, 22,21);
+    }
+        //$orders = $this->getShiprocketOrders($page,6,7,13,17,18,22,21,$filters,);
         foreach ($orders['data'] as &$product) {  
             if (isset($product['products']) && is_array($product['products'])) {
                 foreach ($product['products'] as &$varient) {
@@ -797,22 +874,56 @@ public function updateProductDetails() {
 
         $this->load->view('Admin/shipped',['orders'=>$orders]);    
     }
-    public function cancelled($page = 1){
-        // if (!$page || $page<=1) {
-        //     $page = 1;
-        // }
-        $orders = $this->getShiprocketOrders($page,5);
+    public function cancelled($page = 1) {
+        $filters = [];
+    
+        // Capture GET parameters
+        $label = $this->input->get('label-download');
+        $sortby = $this->input->get('sortby');
+        $inp = $this->input->get('inp');
+        $payment_method = $this->input->get('payment-type');
+        $from = urldecode($this->input->get('from'));
+        $to = urldecode($this->input->get('to'));
+    
+      // Apply filters if present
+        if (!empty($sortby)) {
+            if ($sortby == 'awb') {
+                $filters['search'] = 'awb';
+            } else {
+                $filters['sortby'] = $sortby;
+            }
+        }
+        if (!empty($inp)) {
+            $filters['inp'] = $inp;
+        }
+        if (!empty($payment_method)) {
+            $filters['payment_method'] = $payment_method;
+        }
+        if (!empty($label)) {
+            $filters['label'] = $label;
+        }
+        if (!empty($from) && !empty($to)) {
+            $filters['from'] = $from;
+            $filters['to'] = $to;
+        }
+    
+        // Call API with date filters
+        $orders = $this->getShiprocketOrders($page, 5, 8, 16, 45, '', '', '', $filters);
+    
         foreach ($orders['data'] as &$product) {  
             if (isset($product['products']) && is_array($product['products'])) {
                 foreach ($product['products'] as &$varient) {
                     $varient['image'] = $this->AdminModel->getImage($varient['channel_sku']);
                 }
             }
+            $product['wdata'] = $this->db->select('orders.*')->from('orders')->where('orders.order_id', $product['id'])->get()->row_array();
         }
-
-
-        $this->load->view('Admin/cancelled',['orders'=>$orders]);
+        //  echo'<pre>';
+        //      print_r($orders);
+        //      exit;
+        $this->load->view('Admin/cancelled', ['orders' => $orders]);
     }
+    
     public function returnorder()
     {
         $this->load->view('Admin/returnorder');    
@@ -824,9 +935,7 @@ public function updateProductDetails() {
         $ret = $this->input->get('ret');
         if ($type == 'new') {
             $orders['data'] = $this->getnewreturns($category,$order,$ret); // Pass category filter
-            // echo'<pre>';
-            // print_r($category);
-            // exit;
+
             $this->load->view('Admin/new_returns', ['orders' => $orders]);
         } else {
             $orders = $this->getShiprocketreturns($page, $category); // Pass category filter
@@ -838,7 +947,9 @@ public function updateProductDetails() {
                     }
                 }
             }
-    
+            //      echo'<pre>';
+            //  print_r($orders);
+            //  exit;
             $this->load->view('Admin/returntracking', ['orders' => $orders]);
         }
     }
@@ -849,18 +960,20 @@ public function updateProductDetails() {
         $id = intval($this->input->post('return_id'));
         $shipment_id = intval($this->input->post('shipment_id')); // Ensure ID is an integer
         $status = intval($this->input->post('res'));
-        // print_r($id);
-        // exit;
-    
-        if ($id > 0) {
+         
+   
+        if ($id) {
 
             $ret = $this->createReturn($id, $status,$shipment_id);
+			// print_r($ret);
+        //	exit;
             if ($ret) {
                 $this->db->set('is_approved', $status)
                 ->where('order_id', $id)
                 ->update('order_returns');
 
-                return $this->db->affected_rows() > 0; // Return true if update is successful
+                $this->db->affected_rows() > 0; 
+                echo json_encode(['status' => 'success', 'message' => 'Return request created successfully.','data'=>$ret]);
             }else{
                 return false;
             }
@@ -872,9 +985,10 @@ public function updateProductDetails() {
 
     public function createReturn($id, $status, $shipment_id) {
         $this->load->model('AdminModel');
-    
+
         // Fetch order details
         $orderDetails = $this->AdminModel->getOrderDetails($shipment_id);
+		    
         if (!$orderDetails) {
             return false; // Return false if order details are missing
         }
@@ -882,7 +996,7 @@ public function updateProductDetails() {
         $userDetails = $this->AdminModel->getUserDetails($orderDetails['user_id']);
         $productDetails = $this->AdminModel->getProductDetails($orderDetails['product_id'], $orderDetails['varient_id']);
         $addressDetails = $this->AdminModel->getAddressDetails($orderDetails['address_id']);
-    
+  
         $returnData = [
             'orderDetails'   => $orderDetails,
             'userDetails'    => $userDetails,
@@ -890,10 +1004,11 @@ public function updateProductDetails() {
             'addressDetails' => $addressDetails,
             'status'         => $status
         ];
-    
+  
         // Process return with external API
         $returnRes = $this->returnShip($returnData);
-    
+    	   //print_r($returnRes);
+		//	 exit;
         if ($returnRes) {
             // Prepare data for database update
             $newdata = [
@@ -920,45 +1035,51 @@ public function updateProductDetails() {
         
     
 
-    public function getnewreturns($cat = null, $order = null, $ret = null)
-    {
-      
-        $this->db->select('order_returns.*, users.name AS user_name, orders.*, address.name AS address_name, jwellaries.jwellary_name, jwellaries.thumbnail')
-                 ->from('order_returns')
-                 ->where('order_returns.is_approved', $ret)
-                 ->join('users', 'users.UserID = order_returns.user_id', 'left')
-                 ->join('orders', 'orders.order_id = order_returns.order_id', 'left')
-                 ->join('address', 'address.id = orders.address_id', 'left')
-                 ->join('jwellaries', 'jwellaries.id = orders.product_id', 'left');
-    
-        if (!empty($cat)) {
-            $this->db->group_start()
-                     ->where('jwellaries.category_id', $cat)
-                     ->or_where('jwellaries.subcategory_id', $cat)
-                     ->group_end();
-        }
-    
-        if (!empty($order)) {
-            $this->db->where('order_returns.return_type', (int) $order);
-                     
-        }
-    
-        return $this->db->get()->result_array();
+public function getnewreturns($cat = null, $order = null, $ret = 0)
+{
+    $this->db->select('order_returns.*, users.name AS user_name, orders.*, address.name AS address_name, jwellaries.jwellary_name, jwellaries.thumbnail')
+             ->from('order_returns')
+			 ->where('order_returns.is_approved', $ret)
+             ->join('users', 'users.UserID = order_returns.user_id', 'left')
+             ->join('orders', 'orders.order_id = order_returns.order_id', 'left')
+             ->join('address', 'address.id = orders.address_id', 'left')
+             ->join('jwellaries', 'jwellaries.id = orders.product_id', 'left');
+
+    //if (!empty($ret)) {
+      //  $this->db->where('order_returns.is_approved', $ret);
+   // }
+
+    if (!empty($cat)) {
+        $this->db->group_start()
+                 ->where('jwellaries.category_id', $cat)
+                 ->or_where('jwellaries.subcategory_id', $cat)
+                 ->group_end();
     }
+
+    if (!empty($order)) {
+        $this->db->where('order_returns.return_type', (int) $order);
+    }
+
+    return $this->db->get()->result_array();
+}
+
 
 
     public function viewdetails($order_id)
     {
+ 
+
         $this->load->model('AdminModel');
         $order = $this->AdminModel->getReturnDetails($order_id);
+        // echo'<pre>';
+        // print_r($order);
+        // exit;
         $status = $this->trackShipment($order['shipment_id']);
         $details = [
             'order'=>$order,
             'status'=>$status
         ];
-        // echo'<pre>';
-        // print_r($details);
-        // exit;
+
         $this->load->view('Admin/viewdetails',['data'=>$details]);
     }
     

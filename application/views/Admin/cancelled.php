@@ -22,6 +22,36 @@
             </a>
         </div>
     </div>
+    <div class="ship-filter">
+        <div class="filters-by">
+            <div class="mains-filt">
+
+                <select class="main-filters" name="payment-type" onchange="filterByPaymentType(this.value)">
+                    <option>Payment Type</option>
+                    <option value="prepaid">Prepaid</option>
+                    <option value="cod" > COD </option>
+                </select>
+            </div>
+        </div>
+        <input type="date" id="from" name="from" placeholder="from">
+        <input type="date" id="to" name="to" placeholder="to" >
+        <button type="button" onclick="filterByDate()" >submit</button>
+        <div class="ships-by">
+            <div class="shorts-filter">
+                <h3>Sort by :</h3>
+                <form id="filterForm">
+                <select class="main-filters" id="sortby" name="sortby">
+                    <option value="id">Channel Order Id</option>
+                    <option value="awb">AWB </option>
+                   
+                </select>
+
+                <input type="text" id="inp" name="inp" placeholder="Enter Value">
+                <button type="button" onclick="applyfilter()" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="row g-3">
         <div class="col-12">
             <div class="table-header d-flex justify-content-between align-items-center ms-4">
@@ -34,12 +64,15 @@
                         <thead>
                             <tr>
                                 <th>Cancelled Products</th>
-                                <th>Sub Order ID</th>
+                                <th>Order ID</th>
+                                <th>Updated At</th>
                                 <th>Customer Name</th>
                                 <th>SKU ID</th>
-                                <th>Manchaha ID</th>
+                                <th>Shipment ID</th>
                                 <th>Size</th>
                                 <th>Quantity</th>
+                                <th>Action</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -56,11 +89,17 @@
                                     </div>
                                 </td>
                                 <td><?= $order['id']?></td>
+                                <td><?= $order['updated_at']?></td>
                                 <td><?= $order['customer_name']?></td>
                                 <td><?= $order['products'][0]['channel_sku']?></td>
                                 <td><?= $order['shipments'][0]['id']?></td>
                                 <td>Free Size</td>
                                 <td><?= $order['products'][0]['quantity']?></td>
+                                <td>
+                                    <div class="actions" style="display: flex; gap: 8px;">
+                                        <a href="<?= base_url('Web/Admin/Admin/OrderDetails/' . $order['shipments'][0]['id'])?>" class="btn btn-primary">View</a>
+                                    </div>
+                                </td>
                             </tr>
 
                             <?php }?>
@@ -158,3 +197,39 @@ table tr th {
 </style>
 
 </html>
+<script>
+    function filterByLabel(value) {
+        window.location.href = '<?= base_url('cancelled/1/')?>' + '?label-download=' + value;
+    }
+
+    function applyfilter(){
+        var filterForm = document.getElementById('filterForm');
+        var formData = new FormData(filterForm);
+        var url = '<?= base_url('cancelled/1')?>';
+        var params = new URLSearchParams(formData);
+        window.location.href = url + '?' + params.toString();
+    }
+
+    function filterByPaymentType(value) {
+        window.location.href = '<?= base_url('cancelled/1/')?>' + '?payment-type=' + value;
+    }
+
+    function filterByDate() {
+    let from = document.getElementById("from").value;
+    let to = document.getElementById("to").value;
+
+    if (from && to) {
+        let formattedFrom = from.replace("T", " "); // Convert "YYYY-MM-DDTHH:mm:ss" → "YYYY-MM-DD HH:mm:ss"
+        let formattedTo = to.replace("T", " ");
+
+        let urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('from', formattedFrom);
+        urlParams.set('to', formattedTo);
+
+        window.location.href = '?' + decodeURIComponent(urlParams.toString()); // Prevent double encoding
+    }
+}
+
+
+
+</script>

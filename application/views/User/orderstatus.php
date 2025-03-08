@@ -179,14 +179,55 @@ $tax = $trackdata['track']['data']['products'][0]['tax'];
                 <div class="order-tracking container" style="padding: 10px;">
                     <h2 class="pt-1">Order ID: #<?= $trackdata['track']['data']['id']?></h2>
                     <div class="status-line mt-4">
-                        <?php if(isset($trackdata['trackingdata'][0][$trackdata['track']['data']['id']]['tracking_data']['shipment_track_activities'])&&!empty($trackdata['trackingdata'][0][$trackdata['track']['data']['id']]['tracking_data']['shipment_track_activities'])){?>
-                        <?php foreach($trackdata['trackingdata'][0][$trackdata['track']['data']['id']]['tracking_data']['shipment_track_activities'] as $trck){?>
-                        <div class="step completed">
-                            <div class="icon"><i class="fa-solid fa-cart-arrow-down"></i></div>
-                            <p><?= $trck['activity']?></p>
-                            <span class="date"><?= $trck['date']?></span>
+                        <?php if(isset($trackdata['trackingdata']['tracking_data']['shipment_track_activities']) && !empty($trackdata['trackingdata']['tracking_data']['shipment_track_activities'])){?>
+						     <div class="step completed">
+                            <div class="icon"><i class="fa-solid fa-spinner"></i></div>
+                            <p><?= $trackdata['track']['data']['status']?></p>
+                            <span class="date"><?= $trackdata['track']['data']['created_at']?></span>
                         </div>
-                        <?php }?>
+                            <?php 
+$importantStatuses = ['Out For Pickup', 'Pickup Done', 'In Transit', 'Out For Delivery', 'Delivered'];
+$completedStatuses = ['Pickup Done', 'In Transit', 'Out For Delivery', 'Delivered']; // These should be marked as completed
+
+$displayedStatuses = []; // To track displayed statuses
+
+foreach ($trackdata['trackingdata']['tracking_data']['shipment_track_activities'] as $trck) { 
+    if (in_array($trck['activity'], $importantStatuses) && !in_array($trck['activity'], $displayedStatuses)) {
+        $dateString = $trck['date'];
+        $date = new DateTime($dateString);
+        $eventdate = $date->format('d M Y h:i A'); // Format the date
+
+        // Mark as completed if the status is in the completed list
+        $isCompleted = in_array($trck['activity'], $completedStatuses) ? 'completed' : '';
+
+        // Add to displayed statuses to avoid duplicates
+        $displayedStatuses[] = $trck['activity'];
+?>
+    
+    <div class="step <?= $isCompleted ?>">
+        <div class="icon">
+            <?php if ($trck['activity'] == 'Out For Pickup') { ?>
+                <i class="fa-solid fa-truck-ramp-box"></i>
+            <?php } elseif ($trck['activity'] == 'Pickup Done') { ?>
+                <i class="fa-solid fa-truck-fast"></i>
+            <?php } elseif ($trck['activity'] == 'In Transit') { ?>
+                <i class="fa-solid fa-truck"></i>
+            <?php } elseif ($trck['activity'] == 'Out For Delivery') { ?>
+                <i class="fa-solid fa-box"></i>
+            <?php } elseif ($trck['activity'] == 'Delivered') { ?>
+                <i class="fa-solid fa-check-circle"></i>
+            <?php } ?>
+        </div>
+        <p><?= $trck['activity'] ?></p>
+        <span class="date"><?= $eventdate ?></span>
+    </div>
+
+<?php 
+    } 
+} 
+?>
+
+
                         <?php }else{?>
                         <div class="step completed">
                             <div class="icon"><i class="fa-solid fa-spinner"></i></div>
@@ -194,37 +235,39 @@ $tax = $trackdata['track']['data']['products'][0]['tax'];
                             <span class="date"><?= $trackdata['track']['data']['created_at']?></span>
                         </div>
                         <?php }?>
-                        <!-- <div class="step completed">
-                                <div class="icon"><i class="fa-solid fa-box"></i></div>
-                                <p>Packed</p>
-                                <span class="date">Jul 23, 2024 7:01 AM</span>
-                              </div>
-                              <div class="step">
-                                <div class="icon"><i class="fa-solid fa-truck-fast"></i></div>
-                                <p>Shipping</p>
-                                <span class="date">Jul 23, 2024 7:01 AM</span>
-                              </div>
-                              <div class="step">
-                                <div class="icon"><i class="fa-solid fa-truck-ramp-box"></i></div>
-                                <p>Delivered</p>
-                                <span class="date">Jul 23, 2024 7:01 AM</span>
-                              </div> -->
+                        
+
                     </div>
 					
                     <div>        
                 </div>
+                <?php 
+                date_default_timezone_set('Asia/Kolkata'); 
+                $currentDate = date('Y-m-d H:i:s');
+                ?>
+                <?php if (!empty($trackdata['trackingdata']['tracking_data']['shipment_track'][0]['delivered_date'])&&$trackdata['trackingdata']['tracking_data']['shipment_track'][0]['delivered_date'] <= $currentDate) {?>
+                    
 					                    <div class="button-adds">
                                         <button class="btn btn-primary" onclick="review('<?= $trackdata['order']['product_id'] ?>','<?= $trackdata['order']['varient_id'] ?>')" >Add Review</button>
 
-                        
-                        <button class="btn btn-primary" type="button" onclick="returning('<?= $trackdata['order']['order_id']?>','<?= $trackdata['order']['user_id']?>')" > Return</button>
+                                    <?php
+                                    
+                                    $deliverydate = $trackdata['trackingdata']['tracking_data']['shipment_track'][0]['delivered_date'];
+                                    $newDate = date("Y-m-d H:i:s", strtotime($deliverydate . " +3 days"));
+                                    
+                                    
+                                    
+                                    ?>
+										<?php if ($currentDate <= $newDate) {?>
+                                <button class="btn btn-primary" type="button" onclick="returning('<?= $trackdata['order']['order_id']?>','<?= $trackdata['order']['user_id']?>')" > Return</button>
                         
 
-                        <a href="<?= base_url('replace-order')?>">
-                        <button class="btn btn-primary" > Replacement</button>
-                        </a>
-                    </div>
-
+                                <!--<a href="<?= base_url('replace-order')?>">
+                                <button class="btn btn-primary" > Replacement</button>
+                                </a>-->
+                                <?php }?>
+                            </div>
+            <?php }?>
 
                 </div>
 
