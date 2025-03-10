@@ -141,6 +141,58 @@ public function razorpay_refund()
 }
 
 
+public function refundCod()
+{
+    $order_id = $this->input->post('order_id');
+    $user_id = $this->input->post('user_id');
+    $amount = $this->input->post('amount');
+
+    $odata = $this->db->select('(amount + taxes) as total')
+                      ->from('orders')
+                      ->where(['order_id' => $order_id, 'user_id' => $user_id])
+                      ->get()
+                      ->row();
+
+    if (!$odata) {
+        echo json_encode(['error' => 'Order not found']);
+        return;
+    }
+
+    // Fetch payment ID
+    $payment = $this->db->select('payment_id')->from('payments')->where('order_id', $order_id)->get()->row();
+    if (!$payment) {
+        echo json_encode(['error' => 'Payment record not found']);
+        return;
+    }
+
+    $refundData = [
+        'amount' => intval($amount * 100), // Convert to paise
+        'speed' => 'optimum',
+        'notes' => ['reason' => 'Refund for order #' . $order_id],
+    ];
+
+    try {
+        // Ensure Razorpay API is initialized in constructor
+        $res = $this->api->payment->fetch($payment->payment_id)->refund($refundData);
+        $data = $res->toArray();
+
+        $this->db->set('payment_status', 4)->where(['order_id' => $order_id, 'user_id' => $user_id])->update('orders');
+        $this->db->insert('refunds', [
+            'payment_id' => $payment->payment_id,
+            'refund_id' => $data['id'],
+            'amount' => $data['amount'] / 100,
+            'status' => $data['status'],
+            'order_id' => $order_id,
+        ]);
+        echo json_encode(['status' => 'success', 'data' => $data]);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+    
+}
+
+
 
 
     

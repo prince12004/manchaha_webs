@@ -1,7 +1,7 @@
 <?php $this->load->view('Admin/header') ?>
 <div class="vendor-page content">
     <div class="d-flex  justify-content-between align-items-center my-3">
-        <h1 class="dash-head1">All Vendors</h1>
+        <h1 class="dash-head1">Bulk Orders</h1>
     </div>
     <!-- stat-box -->
     <div class="stat-box-row-1 g-1 col-12 mb-3 d-flex ">
@@ -9,53 +9,53 @@
             <div class="stat-box-1 p-3 text-center bg-light rounded">
                 <img src="<?= base_url('/assets/images/newOrder.png') ?>" alt="icon" width="42px">
                 <h3>New Order </h3>
-                <p>0</p>
+                <p><?= $orders['stats']['new']?></p>
                 <div class="percent-stat d-flex gap-2">
-                    <div class="green d-flex align-items-center">
+                    <!-- <div class="green d-flex align-items-center">
                         <span class=" arrow-icon material-symbols-outlined">
                             arrow_upward
                         </span>
                         0%
-                    </div>
-                    <span>Super Admin</span>
+                    </div> 
+                    <span>Super Admin</span>-->
                 </div>
             </div>
         </div>
         <div class="cards ">
             <div class="stat-box-1 p-3 text-center bg-light rounded">
                 <img src="<?= base_url('/assets/images/orderDelivered.png') ?>" alt="icon" width="42px">
-                <h3>Order Delivered</h3>
-                <p>0</p>
+                <h3>Contacted</h3>
+                <p><?= $orders['stats']['contacted']?></p>
                 <div class="percent-stat d-flex gap-2">
-                    <div class="green d-flex align-items-center"> <span class=" arrow-icon material-symbols-outlined">
+                    <!-- <div class="green d-flex align-items-center"> <span class=" arrow-icon material-symbols-outlined">
                             arrow_upward
-                        </span>0%</div> Super Admin
+                        </span>0%</div> Super Admin -->
                 </div>
             </div>
         </div>
         <div class="cards ">
             <div class="stat-box-1 p-3 text-center bg-light rounded">
                 <img src="<?= base_url('/assets/images/orderPending.png') ?>" alt="icon" width="42px">
-                <h3>Order Pending</h3>
-                <p>0</p>
-                <span class="percent-stat d-flex gap-2"><span class="red d-flex align-items-center"><span
+                <h3>Fulfilled Orders</h3>
+                <p><?= $orders['stats']['fulfilled']?></p>
+                <!-- <span class="percent-stat d-flex gap-2"><span class="red d-flex align-items-center"><span
                             class=" arrow-icon material-symbols-outlined">
                             arrow_downward
-                        </span>0%</span> Super Admin</span>
+                        </span>0%</span> Super Admin</span> -->
             </div>
         </div>
         <div class="cards ">
             <div class="stat-box-1 p-3 text-center bg-light rounded">
                 <img src="<?= base_url('/assets/images/orderConfirm.png') ?>" alt="icon" width="42px">
-                <h3>Confirm Order</h3>
-                <p>0</p>
-                <span class="percent-stat d-flex gap-2"><span class="green d-flex align-items-center"><span
+                <h3>Denied Order</h3>
+                <p><?= $orders['stats']['denied']?></p>
+                <!-- <span class="percent-stat d-flex gap-2"><span class="green d-flex align-items-center"><span
                             class=" arrow-icon material-symbols-outlined">
                             arrow_upward
-                        </span>0%</span> Super Admin</span>
+                        </span>0%</span> Super Admin</span> -->
             </div>
         </div>
-        <div class="cards ">
+        <!-- <div class="cards ">
             <div class="stat-box-1 p-3 text-center bg-light rounded">
                 <img src="<?= base_url('/assets/images/orderCancel.png') ?>" alt="icon" width="42px">
                 <h3>Order Cancel</h3>
@@ -64,7 +64,7 @@
                             class=" arrow-icon material-symbols-outlined">
                             arrow_upward
                         </span>0%</span> Super Admin</span>
-            </div>
+            </div> -->
         </div>
     </div>
     <!-- stat-box ends -->
@@ -73,14 +73,9 @@
         <div class="col-12 ">
             <div class="table-header d-flex justify-content-between align-items-center ms-4">
                 <div class="headings mt-2 mb-1">
-                    <h3>Vendor List</h3>
+                    <h3>Bulk Orders</h3>
                     <!-- <h6>Lorem Ipsum is simply dummy text</h6> -->
                 </div>
-                <a href="<?= base_url('addvender') ?>">
-                    <button class=" btn btn-primary add-vendor-btn d-center gap-3 mb-2">
-                        <img src="<?= base_url('/assets/images/newvendor.png') ?>" alt="icon"> Add New Vendor
-                    </button>
-                </a>
             </div>
             <div class="table-wrapper col-12 bg-white p-3 rounded">
                 <div class="pb-2" style="overflow-x: scroll;">
@@ -97,35 +92,36 @@
                         <thead>
                             <tr>
                             <th>S.No</th>
-                                <th>Vendor</th>
-                                <th>Email ID</th>
+                                <th>Name</th>
                                 <th>Phone</th>
-                                <th>State</th>
-                                <th>City</th>
+                                <th>Email ID</th>
                                 
-                                <th>Joining</th>
-                                <th>Published</th>
-                                <th>Action</th>
+                                <th>Business Name</th>
+                                <th>Category</th>
+                                
+                                <th>quantity</th>
+                                <th>Address</th>
+                                <th>Contact Date</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($vendordata['vendors'] as $index=> $vendor) {?>
+                            <?php foreach ($orders['orders'] as $index=> $order) {?>
                                 
                            
                             <tr>
                                         <td><?= $index+1?></td>
-                          
-                                        <td>
-                                            <img class="user-image" src="<?= base_url('/uploads/vendorimages/').$vendor['vendor_image'] ?>" alt="User Image"><?= $vendor['vendor_name']?>
-                                        </td>
-                                        <td><?= $vendor['vendor_email'] ?></td>
-                                        <td><?= $vendor['vendor_phone'] ?></td>
-                                        <td><?= $vendor['state_name'] ?></td>
-                                        <td><?= $vendor['vendor_city'] ?></td>
+                                        <td><?= $order['name'] ?></td>
+                                        <td><?= $order['contact'] ?></td>
+                                        <td><?= $order['email'] ?></td>
+                                        <td><?= $order['business_name'] ?></td>
+                                        <td><?= $order['category'] ?></td>
+                                        <td><?= $order['quantity'] ?></td>
+                                        <td><?= $order['address'] ?></td>
                                        
                                         <td>
                                             <?php 
-                                            $date = new DateTime($vendor['application_date']);
+                                            $date = new DateTime($order['created']);
                                             $formattedDate = $date->format('d-m-Y H:i');
                                             
                                             echo $formattedDate;
@@ -133,25 +129,23 @@
                                              ?>
                                             
                                         </td>
-                                        <td>
-                                            <select class="select-status" onchange="vendorStatus(this.value,'<?= $vendor['id'] ?>')" style="color: black;">
-                                                
-                                                <option <?= ($vendor['is_verified']==1) ?'selected' : '' ?> class="active" value="1" >Active</option>
-                                                <option <?= ($vendor['is_verified']==2) ?'selected' : '' ?> class="block" value="2" >Blocked</option>
-                                                <?php if ($vendor['is_verified']==0) {?>
-                                                    <option <?= ($vendor['is_verified']==0) ?'selected' : '' ?> class="unactive" value="0">Un-Active</option>
-                                                <?php }?>
-                                                
-                                               
-                                               
-                                            </select>
-                                        </td>
-                                        <td>
+<td>
+    <select class="select-status" onchange="BulkStatus(this.value, '<?= $order['id'] ?>')" style="color: black;">
+        <?php if ($order['status'] == 1) { ?>
+            <option selected class="active" value="1">New</option>
+        <?php } ?>
+        <option <?= ($order['status'] == 2) ? 'selected' : '' ?> class="block" value="2">Contacted</option>
+        <option <?= ($order['status'] == 3) ? 'selected' : '' ?> class="block" value="3">Fulfilled</option>
+        <option <?= ($order['status'] == 4) ? 'selected' : '' ?> class="unactive" value="4">Denied</option>
+    </select>
+</td>
+
+                                        <!-- <td>
                                             <div class="action-icons">
                                                 <a href="<?= base_url('venderDetails') ?>" class="icon eye-icon" title="View"><img src="<?= base_url('/assets/images/eye.png') ?>" alt="View" width="20px"></a>
                                                 <a href="#" class="icon hand-icon" title="Delete"><img src="<?= base_url('/assets/images/Trash.png') ?>" alt="Handle" width="20px"></a>
                                             </div>
-                                        </td>
+                                        </td> -->
                                    </tr>
                                    <?php }?>
                         </tbody>
@@ -196,6 +190,21 @@ $(document).ready(function() {
         }
     });
 });
+
+function BulkStatus(status,id)
+{
+    console.log(status);
+    $.ajax({
+        url: '<?= base_url('bulkStatuschange') ?>',
+        type: 'POST',
+        data: {status:status,id:id},
+        success: function(response) {
+            console.log(response);
+        }
+    });
+}
+
+
 </script>
 </body>
 

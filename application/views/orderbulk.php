@@ -61,11 +61,14 @@ function submitBulk()
     .then(response => response.json())
     .then(data => {
         console.log('Success:', data);
-        alert('Form submitted successfully!');
+        alert('Details saved successfully!');
+        formElement.reset();
+
     })
     .catch((error) => {
         console.error('Error:', error);
         alert('Form submission failed!');
+        
     });
     console.log(FormData);
 

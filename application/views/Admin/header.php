@@ -48,6 +48,9 @@
                 <li><a href="<?= base_url('returntracking/new') ?>"><img class="ms-4 me-4"
                             src="<?= base_url('/assets/images/images/orderHistory.png') ?>" alt="icon"> Order Returns</a></li>
                 <li>
+                <li><a href="<?= base_url('bulk-order') ?>"><img class="ms-4 me-4"
+                            src="<?= base_url('/assets/images/images/orderHistory.png') ?>" alt="icon"> Bulk Orders</a></li>
+                <li>
                     <a href="<?= base_url('logout')?>"><img class="ms-4 me-4"
                             src="<?= base_url('/assets/images/images/logout.png') ?>" alt="icon">Logout</a>
                 </li>
@@ -58,10 +61,10 @@
     <div id="main-content" class="main-content">
         <header class="d-flex justify-content-between align-items-center pb-2">
             <div class="search-nav  col-7 d-flex">
-                <div class="lensbar d-flex justify-content-center align-items-center">
+                <!-- <div class="lensbar d-flex justify-content-center align-items-center">
                     <img src="<?= base_url('/assets/images/images/lens.png') ?>" alt="lens">
                 </div>
-                <input type="text" class="form-control  w-50" placeholder="Search anything here...">
+                <input type="text" class="form-control  w-50" placeholder="Search anything here..."> -->
             </div>
             <div class="user d-flex align-items-center">
                 <!-- notification-icon -->

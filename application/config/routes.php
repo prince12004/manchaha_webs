@@ -178,6 +178,8 @@ $route['accept-return'] = 'Web/Admin/Admin/accept_return';
 //$route['viewdetails'] = 'Web/Admin/Admin/viewdetails';
 
 $route['replace-order'] = 'Web/User/User/replace';
+$route['bulk-order'] = 'Web/Admin/Admin/bulklist';
+$route['bulkStatuschange'] = 'Web/Admin/Admin/bulkStatuschange';
 $route['checkPaymentStatus'] = 'Razorpay/payment_status';
 $route['viewdetails/(:any)'] = 'Web/Admin/Admin/viewdetails/$1';
 

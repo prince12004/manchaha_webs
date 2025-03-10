@@ -1099,4 +1099,60 @@ public function getnewreturns($cat = null, $order = null, $ret = 0)
     }
 
 
+    public function bulklist()
+    {
+        $orders = $this->db->from('bulk_order')->order_by('created','desc')->get()->result_array();
+        $stats = $this->bulkstats();
+        // print_r($stats);
+        // exit;
+
+        $data = [
+            'new'=>0,
+            'contacted'=>0,
+            'fulfilled'=>0,
+            'denied'=>0,
+            'total'=>0
+        ];
+        foreach ($stats as $stat) {
+            if ($stat['status'] == 1) {
+                $data['new'] = $stat['total'];
+            } elseif ($stat['status'] == 2) {
+                $data['contacted'] = $stat['total'];
+            } elseif ($stat['status'] == 3) {
+                $data['fulfilled'] = $stat['total'];
+            } elseif ($stat['status'] == 4) {
+                $data['denied'] = $stat['total'];
+            }
+            $data['total']+=$stat['total'];
+        }
+
+        $data['stats'] = $data;
+        $data['orders'] = $orders;
+        $this->load->view('Admin/bulklist',['orders'=>$data]); 
+        
+    }
+
+    public function bulkstats()
+    {
+        return $this->db
+            ->select('status, COUNT(*) as total')
+            ->from('bulk_order')
+            ->group_by('status')
+            ->get()
+            ->result_array();
+    }
+    
+
+
+    public function bulkStatuschange()
+    {
+        $input = $this->input->post();
+        $id = $input['id'];
+        $status = $input['status'];
+        $this->db->where('id', $id)->update('bulk_order', ['status' => $status]);
+        echo json_encode(['status' => 'success', 'message' => 'Status updated successfully']);
+        
+    }
+
+
 }
