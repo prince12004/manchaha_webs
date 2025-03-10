@@ -474,7 +474,7 @@
 
     function toggleNewAccountFields() {
         var newAccountFields = document.getElementById('new-bank-account');
-        if (document.getElementById('bank-account-new').checked) {
+        if (document.getElementById('bank-accoun    t-new').checked) {
             newAccountFields.style.display = 'block';
         } else {
             newAccountFields.style.display = 'none';
