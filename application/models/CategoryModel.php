@@ -78,5 +78,13 @@ public function getCategoriesById($categoryID)
     ]);
     return $this->db->insert_id();
   }
+
+
+  public function getallcategories()
+  {
+        $query = $this->db->where(['IsActive'=> 1,'is_deleted'=>1])->get('categories');
+        return $query->result();
+    
+  }
 }
 ?>

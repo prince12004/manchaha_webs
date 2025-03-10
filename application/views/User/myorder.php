@@ -166,13 +166,15 @@
 
                             </div>
                         </div>
+                        <?php }else if(($orderData['order_status']==5)||$orderData['order_status']==5){?>
+                        <p class="btn btn-danger">Cancelled</p>
                         <?php }else{?>
-                        <p>order placed</p>
-                        <?php }?>
+						<p>order placed</p>
+						<?php }?>
 
                     </td>
                     <td>
-                        <?php if ($orderData['order_status']==5) {?>
+                        <?php if (($orderData['order_status']==5) || ($orderData['order_status']==7)) {?>
                         <a href="<?= base_url('Welcome/details/').$orderData['product_id']?>" class="shop-button">
                             shop again
                         </a>

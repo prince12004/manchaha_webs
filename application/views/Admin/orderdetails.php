@@ -186,36 +186,9 @@
                         <tbody>
                             <tr>
                                 <!-- Table Cell for Buttons -->
-                                <td>
-                                    <div class="main-orders">
-                                        <!-- Edit Button -->
-                                        <button class="btn-edit"
-                                            onclick="SchedulePickup('<?= $data['order']['shipment_id']?>')">Schedule
-                                            PickUp</button>
-                    
-                                        <!-- Delete Button -->
-                                        <button class="btn-delete"
-                                            onclick="assignAWB('<?= $data['order']['shipment_id']?>','<?= $data['order']['pincode']?>')">
-                                            Generate Label
-                                        </button>
-                                    </div>
-                                </td>
+
                             </tr>
                         </tbody>
-                        <!-- <tfoot>
-                                      <tr>
-                                          <td colspan="5">Discount</td>
-                                          <td>0%</td>
-                                      </tr>
-                                      <tr>
-                                          <td colspan="5">Shipping Cost</td>
-                                          <td>₹ 00.00</td>
-                                      </tr>
-                                      <tr class="grand-total">
-                                          <td colspan="5">Total:</td>
-                                          <td id="grand-total">₹ 00.00</td>
-                                      </tr>
-                                </tfoot> -->
                         <table>
                             <thead>
                                 
@@ -245,7 +218,7 @@
                     </div>
                     <?php } ?>
 
-                    <?php if(($data['order']['payment_type']=='prepaid')&&(!$data['order']['payment_status'])){ ?>
+                    <?php if(($data['order']['payment_type']=='prepaid')&&(!($data['order']['payment_status']==4))){ ?>
                     <button type="button" class="btn btn-danger" onclick="initiateRefund('<?= $data['order']['order_id']?>','<?= $data['order']['user_id']?>','<?= $data['order']['payment']?>')" >Refund ₹ <?= $data['order']['amount']+$data['order']['taxes']?></button>
                                 
                     <?php } ?>
@@ -282,7 +255,7 @@ function initiateRefund(order_id,user_id,payment){
         success: function(response){
             console.log(response);
             response = JSON.parse(response);
-            if(response=='success'){
+            if(response.status =='success'){
                 alert('Refund Initiated Successfully');
             }else{
                 alert(response.error);

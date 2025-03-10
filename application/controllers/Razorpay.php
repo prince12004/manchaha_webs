@@ -77,7 +77,6 @@ class Razorpay extends CI_Controller {
         $user_id = $this->input->post('user_id');
         $pid = $this->input->post('payment');
     
-        // Fetch order total amount
         $odata = $this->db->select('(amount + taxes) as total')
                           ->from('orders')
                           ->where(['order_id' => $order_id, 'user_id' => $user_id])
@@ -113,11 +112,36 @@ class Razorpay extends CI_Controller {
                 'refund_id' => $data['id'],
                 'amount' => $data['amount'] / 100,
                 'status' => $data['status'],
+                'order_id' => $order_id,
             ]);
             echo json_encode(['status' => 'success', 'data' => $data]);
         } catch (Exception $e) {
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+
+
+
+public function razorpay_refund()
+{
+    $input = file_get_contents("php://input");
+    $eventData = json_decode($input, true);
+
+    if (isset($eventData['event']) && $eventData['event'] === 'payment.refund.processed') {
+        $refund_id = $eventData['payload']['refund']['entity']['id'];
+        $status = $eventData['payload']['refund']['entity']['status'];
+
+        // Update refund status in database
+        $this->db->where('refund_id', $refund_id)->update('refunds', ['status' => $status]);
+
+        echo json_encode(['success' => 'Refund status updated']);
+    } else {
+        echo json_encode(['error' => 'Invalid webhook event']);
+    }
+}
+
+
+
+
     
 }

@@ -253,9 +253,9 @@ class Admin extends Ship
             'order'=>$order,
             'status'=>$status
         ];
-            // echo '<pre>';
-            // print_r($details);
-            // exit;
+            echo '<pre>';
+            print_r($details);
+            exit;
         $this->load->view('Admin/orderdetails',['data'=>$details]);
     }
     public function showCategory()
@@ -1071,23 +1071,17 @@ public function getnewreturns($cat = null, $order = null, $ret = 0)
 
         $this->load->model('AdminModel');
         $order = $this->AdminModel->getReturnDetails($order_id);
-        // echo'<pre>';
-        // print_r($order);
-        // exit;
+
         $status = $this->trackShipment($order['shipment_id']);
         $details = [
             'order'=>$order,
             'status'=>$status
         ];
-
+        // echo'<pre>';
+        // print_r($details);
+        // exit;
         $this->load->view('Admin/viewdetails',['data'=>$details]);
     }
-    
-    
-    
-    
-    
-
 
 
     public function deletVarientImage()
@@ -1095,6 +1089,13 @@ public function getnewreturns($cat = null, $order = null, $ret = 0)
         $id =json_decode(file_get_contents('php://input'), true);
         $this->db->where('image_id', $id['id'])->delete('jwellary_images');
         echo json_encode(['status'=>'success','message'=>'Image Deleted SuccessFully']);
+    }
+
+
+    public function getAllRefunds()
+    {
+        $refunds = $this->db->get('refunds')->result();
+        echo json_encode($refunds);
     }
 
 

@@ -415,6 +415,7 @@ class User extends Ship
             'user_id' => $customer['UserID'],
             'amount' => $fiproduct['sale_price'],
             'taxes'=>($fiproduct['sale_price']*$fiproduct['applicable_tax']*$products['quantity'])/100,
+			
             
         ];
 
@@ -432,7 +433,9 @@ class User extends Ship
                 "message" => $charges['message'] ?? '',
                 "total"=> $charges['total'] ?? '',
             ];
-            $pay_id = $this->db->insert('payments', $pay)->insert_id();
+			$this->db->insert('payments', $pay);
+			$pay_id = $this->db->insert_id();
+            //$pay_id = $this->db->insert('payments', $pay)->insert_id();
 
             $finalproduct['cod_charge'] = 0;
             $finalproduct['payment'] = $pay_id;
@@ -1108,12 +1111,6 @@ public function replace(){
     $this->load->view('User/header');
     $this->load->view('User/replace_order');
     $this->load->view('User/footer');
-}
-
-
-public function pay_razor_success()
-{
-    
 }
 
 }

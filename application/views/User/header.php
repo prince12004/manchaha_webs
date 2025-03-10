@@ -162,8 +162,8 @@ if ($this->session->userdata('userToken')) {
                 </ul>
                 <div id="profile-menu">
                     <div class="become-button">
-                       <a href="<?= base_url('seller-form') ?>">
-                       <button>Become a Seller</button>
+                       <a href="<?= base_url('Welcome/orderbulk') ?>">
+                       <button>Bulk Order</button>
                             </a>
                         </div>
                     <ul id="mainprofileUL" class="navbar-nav ms-auto mb-2 mb-lg-0 ">

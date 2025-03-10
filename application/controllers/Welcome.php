@@ -602,11 +602,12 @@ private function createCustomPagination($currentPage, $totalPages, $baseUrl)
         }
     
         // Debugging - comment or remove for production
+ 
+    $result['id'] = $product_id;
+        // Load the view with updated $result
         // echo '<pre>';
         // print_r($result);
         // exit;
-    $result['id'] = $product_id;
-        // Load the view with updated $result
         $cat['CategoryDescription'] = $result['jwellary_description'];
         $this->load->view('User/header',['cat'=>$cat]);
         $this->load->view('User/product-details', ['result' => $result]);
@@ -848,8 +849,39 @@ public function allreview($id)
     $this->load->view('User/allreview', ['reviews' => $response]);
     $this->load->view('User/footer');
 }
-public function GoogleLogin()
+
+public function orderbulk()
 {
-    $this->load->view('login_view');
+    $this->load->model('CategoryModel');   
+    $categories = $this->CategoryModel->getallcategories();
+    $data['categories'] = $categories;
+    $this->load->view('User/header');
+    $this->load->view('orderbulk', $data);
+    $this->load->view('User/footer');
+    
+    
 }
+
+public function bulk_query()
+{
+    $data = $this->input->post();
+
+    // Insert into database and check for success
+    if ($this->db->insert('bulk_order', $data)) {
+        // Load email template correctly
+       	$emaildata['message'] = $this->load->view('emails/bulk', ['data' => $data], true);
+        $emaildata['to'] = 'tsd412@gmail.com';
+        $emaildata['subject'] = 'Bulk Order Query';
+
+        // Send Email
+        if (send_mail($emaildata)) {
+            echo json_encode(['status' => 'success', 'message' => 'Bulk order submitted successfully']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Bulk order saved, but email failed to send']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to save bulk order']);
+    }
+}
+
 }
